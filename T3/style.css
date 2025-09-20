@@ -21,6 +21,8 @@ header {
 
 .navbar li{
     display: flex;
+    margin: 0 15px;
+    list-style-type: none;
 }
 
 a {
@@ -51,6 +53,8 @@ a {
 .hero-container {
     display: flex;
     flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 #hero-section {
