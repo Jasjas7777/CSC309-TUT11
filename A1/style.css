@@ -71,6 +71,7 @@ nav>ul>li>a:hover {
     justify-content: center;
     margin-top: 60px;
     margin-bottom: 30px;
+    top: 199px;
 }
 
 .portrait img{
@@ -145,7 +146,7 @@ footer {
     display: flex;
     justify-content: center;
     align-items: center;
-    position: absolute;
+    position: relative;
     top: 934px;
     bottom: 0;
     height: 48px;
