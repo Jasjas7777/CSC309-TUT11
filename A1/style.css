@@ -189,7 +189,7 @@ embed {
 }
 
 .contact-container {
-    margin-top: 128px;
+    top: 199px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -276,4 +276,33 @@ button.feedback {
 
 label.consent {
     font-weight: 400;
+}
+
+@media (max-width: 900px){
+    form {
+        width: 414px;
+        height: 467px;
+        top: 367px;
+        left: 8px;
+    }
+    .group {
+        flex-direction: column;
+    }
+
+    label {
+        justify-content: left;
+        align-self: flex-start;
+
+    }
+
+    input {
+        width: 414px;
+    }
+    textarea {
+        width: 100%;
+    }
+}
+
+@media (max-width: 600px) {
+    
 }
