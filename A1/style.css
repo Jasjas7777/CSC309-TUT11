@@ -108,6 +108,8 @@ h1 {
 
 .hi {
     top: 232px;
+    align-items: center;
+    justify-content: center;
 }
 
 .intro {
@@ -147,7 +149,6 @@ footer {
     justify-content: center;
     align-items: center;
     position: relative;
-    top: 934px;
     bottom: 0;
     height: 48px;
 }
