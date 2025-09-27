@@ -105,7 +105,12 @@ h1 {
     justify-content: center;
 }
 
+.hi {
+    top: 232px;
+}
+
 .intro {
+    top: 306px;
     font-family: "Inter", sans-serif;
     font-weight: 400;
     font-size: 24px;
@@ -141,11 +146,12 @@ footer {
     justify-content: center;
     align-items: center;
     position: absolute;
+    top: 934px;
     bottom: 0;
     height: 48px;
 }
 
-.foot{
+footer p{
     display: flex;
     justify-content: center;
     align-items: center;
