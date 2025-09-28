@@ -22,8 +22,6 @@ body {
     flex-direction: column;
     background-color: #BBBBBB;
     font-family: "Inter", sans-serif;
-    overflow:hidden;
-    bottom: 48px;
 }
 
 header {
@@ -84,7 +82,7 @@ nav>ul>li>a:hover {
 
 .home_container {
     margin-top: 128px;
-    margin-bottom: 128px;
+    margin-bottom: 176px;
     top: 199px;
     display: flex;
     flex-direction: column;
@@ -153,6 +151,7 @@ footer {
     position: fixed;
     bottom: 0;
     height: 48px;
+    z-index: 100;
 }
 
 footer p{
@@ -171,9 +170,9 @@ footer p{
     display: flex;
     top: 199px;
     margin-top: 128px;
+    margin-bottom: 176px;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
 }
 
 details > summary {
@@ -203,6 +202,8 @@ details > ul > li {
     font-family: "Inter", sans-serif;
     color: #333333;
     padding: 0.5rem;
+    text-align: center;
+    margin-bottom: 24px;
 }
 
 embed {
@@ -213,6 +214,7 @@ embed {
 .contact-container {
     top: 199px;
     margin-top: 128px;
+    margin-bottom: 176px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -296,6 +298,7 @@ button.button.feedback {
 
 .email {
     margin-bottom: 25px;
+    text-align: center;
 }
 
 .group.checkbox {
