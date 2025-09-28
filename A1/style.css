@@ -378,6 +378,14 @@ label.consent {
     textarea {
         width: 100%;
     }
+
+    input[type="checkbox"]{
+        margin-left: 4px;
+    }
+
+    button.feedback {
+        margin: 0;
+    }
 }
 
 @media (max-width: 600px) {
