@@ -253,7 +253,7 @@ label {
 
 input[type=email] {
     height: 47px;
-    padding: 10px;
+    padding-left: 16px;
 }
 
 input,textarea {
@@ -267,7 +267,8 @@ textarea {
     margin-left: 10px;
     height: 104px;
     color: #888888;
-    padding: 16px;
+    padding-top: 16px;
+    padding-left: 16px;
 }
 
 input[type=file] {
