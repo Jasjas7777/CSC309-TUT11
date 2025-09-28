@@ -73,7 +73,6 @@ nav>ul>li>a:hover {
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-top: 128px;
 }
 
 .portrait img{
@@ -83,6 +82,7 @@ nav>ul>li>a:hover {
 
 
 .home_container {
+    margin-top: 128px;
     top: 199px;
     display: flex;
     flex-direction: column;
@@ -133,7 +133,7 @@ h1 {
     font-family: "Inter", sans-serif;
     font-weight: 700;
     font-size: 16px;
-    margin: 20px;
+    margin: 24px;
     width: auto;
 }
 
@@ -211,6 +211,7 @@ embed {
 
 .contact-container {
     top: 199px;
+    margin-top: 128px;
     display: flex;
     flex-direction: column;
     align-items: center;
