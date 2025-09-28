@@ -274,11 +274,11 @@ input[type=email], textarea, input[type=file] {
 
 input[type=email] {
     height: 47px;
-    padding-left: 0.8rem;
+    padding: 0.8rem;
 }
 
 input,textarea {
-    border: 1px solid #FFFFFF;
+    border: 1px solid #DDDDDD;
     border-radius: 3px;
     box-sizing: border-box;
 }
@@ -286,8 +286,7 @@ input,textarea {
 textarea {
     height: 104px;
     color: #888888;
-    padding-top: 16px;
-    padding-left: 16px;
+    padding: 0.8rem;
 }
 
 input[type=file] {
