@@ -236,20 +236,32 @@ form {
 
 .group {
     display: flex;
-    align-items: center;
+    justify-content: flex-start;
     width: 100%;
+}
 
+.group.checkbox {
+    width: 779px;
 }
 
 label {
     font-weight: 700;
-    text-align: right;
     margin: 5px;
     padding: 0.8rem;
-    white-space: nowrap;
     font-size: 16px;
     font-family: "Inter", sans-serif;
     color: #333333;
+}
+
+label:not(.consent){
+    display: inline-block;
+    width: 140px;
+    text-align: right;
+}
+
+
+input[type=email], textarea, input[type=file] {
+    width: 100%;
 }
 
 input[type=email] {
@@ -258,7 +270,6 @@ input[type=email] {
 }
 
 input,textarea {
-    width: 100%;
     border: 1px solid #FFFFFF;
     border-radius: 3px;
     box-sizing: border-box;
@@ -279,8 +290,6 @@ input[type=file] {
 }
 
 input[type=checkbox] {
-    width: 20px;
-    height: 20px;
     border-radius: 3px;
     border: 3px solid #888888;
     transform: scale(1.5);
@@ -290,11 +299,6 @@ button.feedback {
     width: auto;
     font-size: 13.6px;
     white-space: nowrap;
-}
-
-button.button.feedback {
-    width: auto;
-    display: inline-block;
     align-self: flex-start;
 }
 
@@ -311,9 +315,6 @@ button.button.feedback {
     text-align: center;
 }
 
-.group.checkbox {
-    margin-left: 70px;
-}
 
 label.consent {
     font-weight: 400;
