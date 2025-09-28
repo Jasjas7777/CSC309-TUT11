@@ -113,6 +113,14 @@ h1 {
     margin-bottom: 16px;
 }
 
+.about {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+
 .intro {
     font-family: "Inter", sans-serif;
     font-weight: 400;
