@@ -100,9 +100,7 @@ h1 {
     font-family: "Inter", sans-serif;
     font-weight: 700;
     font-size:48px;
-    color: #333333;
-    align-items: center;
-    justify-content: center;
+    color: #333
 }
 
 .hi {
@@ -110,6 +108,14 @@ h1 {
     align-items: center;
     justify-content: center;
     text-align: center;
+    margin-bottom: 16px;
+}
+
+.header-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
     margin-bottom: 16px;
 }
 
@@ -227,7 +233,7 @@ embed {
 
 .contact-container {
     top: 199px;
-    margin-top: 128px;
+    margin-top: 161px;
     margin-bottom: 176px;
     display: flex;
     flex-direction: column;
@@ -365,5 +371,10 @@ label.consent {
 @media (max-width: 600px) {
     embed {
         width: 450px;
+    }
+
+    p {
+        margin-left: 8px;
+        margin-right: 8px;
     }
 }
