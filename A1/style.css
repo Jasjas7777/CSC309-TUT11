@@ -19,6 +19,7 @@ main {
 
 body {
     display: flex;
+    position: relative;
     flex-direction: column;
     background-color: #BBBBBB;
     font-family: "Inter", sans-serif;
@@ -81,7 +82,7 @@ nav>ul>li>a:hover {
 
 
 .home_container {
-    margin-top: 128px;
+    margin-top: 161px;
     margin-bottom: 176px;
     top: 199px;
     display: flex;
@@ -138,7 +139,7 @@ h1 {
 
 .button:hover {
     color: #FFFFFF;
-    background-color: rgb(255, 255, 255);
+    background-color: #007EA8;
     border: 2px solid #FFFFFF;;
 }
 
@@ -180,6 +181,7 @@ details > summary {
     font-family: "Inter", sans-serif;
     color: #333333;
     list-style: none;
+    text-align: center;
 }
 
 details > ul {
@@ -189,6 +191,7 @@ details > ul {
     justify-content: center;
     top: 1rem;
     padding: 16px;
+    text-align: center;
 }
 
 details > ul > li {
@@ -201,9 +204,11 @@ details > ul > li {
     font-size: 16px;
     font-family: "Inter", sans-serif;
     color: #333333;
-    padding: 0.5rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
     text-align: center;
     margin-bottom: 24px;
+    margin-top: 16px;
 }
 
 embed {
