@@ -220,6 +220,7 @@ details > ul > li {
 }
 
 embed {
+    max-width: 720px;
     width: 720px;
     height: 60vh;
 }
@@ -329,6 +330,9 @@ label.consent {
 }
 
 @media (max-width: 900px){
+    embed {
+        width: 450px;
+    }
     form {
         width: 414px;
         height: 467px;
@@ -359,5 +363,7 @@ label.consent {
 }
 
 @media (max-width: 600px) {
-    
+    embed {
+        width: 450px;
+    }
 }
