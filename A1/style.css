@@ -125,7 +125,7 @@ h1 {
 .button {
     padding: 8px 16px;
     background-color: #FFFFFF;
-    color: #007EA8;
+    color: rgb(0, 126, 168);
     border: 2px solid #007EA8;
     border-radius: 4px;
     text-decoration: none;
@@ -138,7 +138,7 @@ h1 {
 
 .button:hover {
     color: #FFFFFF;
-    background-color: #007EA8;
+    background-color: rgb(255, 255, 255);
     border: 2px solid #FFFFFF;;
 }
 
@@ -248,6 +248,7 @@ label {
 
 input[type=email] {
     height: 47px;
+    padding: 10px;
 }
 
 input,textarea {
@@ -260,6 +261,8 @@ input,textarea {
 textarea {
     margin-left: 10px;
     height: 104px;
+    color: #888888;
+    padding: 16px;
 }
 
 input[type=file] {
