@@ -215,7 +215,7 @@ details > ul > li {
     padding-right: 0.5rem;
     text-align: center;
     margin-bottom: 24px;
-    margin-top: 16px;
+    margin-top: 24px;
 }
 
 embed {
@@ -325,13 +325,14 @@ button.feedback {
 
 label.consent {
     font-weight: 400;
+    text-align: center;
 }
 
 @media (max-width: 900px){
     footer {
         align-items: center;
         text-align: center;
-        width: 100vw;
+        width: 438px;
     }
 
     embed {
