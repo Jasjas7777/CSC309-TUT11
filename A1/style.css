@@ -73,9 +73,7 @@ nav>ul>li>a:hover {
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-top: 60px;
-    margin-bottom: 30px;
-    top: 199px;
+    margin-top: 128px;
 }
 
 .portrait img{
@@ -111,19 +109,21 @@ h1 {
 }
 
 .hi {
-    top: 232px;
+    margin-top: 32px;
     align-items: center;
     justify-content: center;
+    text-align: center;
+    margin-bottom: 16px;
 }
 
 .intro {
-    top: 306px;
     font-family: "Inter", sans-serif;
     font-weight: 400;
     font-size: 24px;
     color: #333333;
     align-items: center;
     justify-content: center;
+    text-align: center;
 }
 
 .button {
