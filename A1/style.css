@@ -238,7 +238,6 @@ form {
     display: flex;
     align-items: center;
     width: 100%;
-    justify-self: right;
 
 }
 
@@ -254,22 +253,19 @@ label {
 }
 
 input[type=email] {
-    height: auto;
+    height: 47px;
+    padding-left: 0.8rem;
 }
 
-input[type=email], textarea, input[type=file] {
+input,textarea {
     width: 100%;
-    border: 1px solid #DDDDDD;
+    border: 1px solid #FFFFFF;
     border-radius: 3px;
     box-sizing: border-box;
-    padding: 0.8rem;
 }
 
 textarea {
-    height: auto;
-}
-
-textarea::placeholder {
+    height: 104px;
     color: #888888;
     padding-top: 16px;
     padding-left: 16px;
@@ -290,16 +286,16 @@ input[type=checkbox] {
     transform: scale(1.5);
 }
 
+button.feedback {
+    width: auto;
+    font-size: 13.6px;
+    white-space: nowrap;
+}
+
 button.button.feedback {
     width: auto;
     display: inline-block;
     align-self: flex-start;
-    padding: 8px 16px;
-    background-color: #FFFFFF;
-    color: rgb(0, 126, 168);
-    border: 2px solid #007EA8;
-    border-radius: 4px;
-    cursor: pointer;
 }
 
 .email a {
@@ -325,14 +321,13 @@ label.consent {
 
 @media (max-width: 900px){
     form {
-        max-width: 414px;
+        width: 414px;
         height: 467px;
         top: 367px;
         left: 8px;
     }
     .group {
         flex-direction: column;
-        gap: 5px;
     }
 
     label {
