@@ -238,13 +238,14 @@ form {
     display: flex;
     align-items: center;
     width: 100%;
+
 }
 
 label {
     font-weight: 700;
     text-align: right;
     margin: 5px;
-    padding: 10px;
+    padding: 0.8rem;
     white-space: nowrap;
     font-size: 16px;
     font-family: "Inter", sans-serif;
@@ -253,7 +254,7 @@ label {
 
 input[type=email] {
     height: 47px;
-    padding-left: 16px;
+    padding-left: 0.8rem;
 }
 
 input,textarea {
@@ -264,7 +265,6 @@ input,textarea {
 }
 
 textarea {
-    margin-left: 10px;
     height: 104px;
     color: #888888;
     padding-top: 16px;
@@ -283,6 +283,7 @@ input[type=checkbox] {
     height: 20px;
     border-radius: 3px;
     border: 3px solid #888888;
+    transform: scale(1.5);
 }
 
 button.feedback {
