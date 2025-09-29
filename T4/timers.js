@@ -29,23 +29,23 @@ class Timer {
         this.remove = remove;
 
         this.update(minutes,seconds);
+        this.countdown();
+    }
+
+    countdown() {
+        if(this.interval) return;
         this.interval = setInterval(()=> {
             if((--this.remaining) <= 0) {
                 this.remaining = 0;
                 clearInterval(this.interval);
+                this.interval = null;
             }
             let min = Math.floor(this.remaining/60);
             let sec = this.remaining % 60;
             this.update(min,sec);
             update_stats();
         },1000)
-
-        /* TODO: Complete the constructor and start a periodic callback
-         * using setInterval to update the timer value once every 1 second.
-         * When the timer reaches 0, the countdown should stop. */
     }
-
-    /* TODO: Add other methods as you see fit */
 }
 
 function create_timer(event, form)
@@ -118,12 +118,14 @@ function extend_all_timers(event, form) {
 
     /* TODO: Extend all timers' values by `seconds`. Hint: use Array.forEach. */
     timers.forEach(timer => {
-        if (timer.remaining > 0) {
+        if (timer.remaining === 0) {
             timer.remaining += seconds;
-            let min = Math.floor(timer.remaining / 60);
-            let sec = timer.remaining % 60;
-            timer.update(min, sec);
+            timer.countdown();
         }
+        let min = Math.floor(timer.remaining / 60);
+        let sec = timer.remaining % 60;
+        timer.update(min, sec);
+        update_stats();
     })
 
     return false;
