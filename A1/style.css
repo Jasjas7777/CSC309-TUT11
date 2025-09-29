@@ -143,6 +143,9 @@ h1 {
     font-weight: 700;
     font-size: 16px;
     width: auto;
+}
+
+.button1 {
     margin: 24px 24px 0;
 }
 
@@ -228,7 +231,7 @@ embed {
 form {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 17px;
     margin-left: 0.5rem;
     margin-right: 0.5rem;
     width: 40%;
@@ -240,8 +243,16 @@ form {
     width: 100%;
 }
 
-.group.checkbox {
-    width: 779px;
+.checkbox {
+    height: 51px;
+    align-items: center;
+    text-align: center;
+    margin-left: 95.2px;
+}
+
+.btn {
+    margin-left: 130px;
+    align-self: flex-start;
 }
 
 label {
@@ -300,6 +311,7 @@ input[type=checkbox] {
     border-radius: 3px;
     border: 3px solid #888888;
     transform: scale(1.5);
+    margin-right: 16px;
 }
 
 button.feedback {
