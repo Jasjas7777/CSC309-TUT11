@@ -23,6 +23,7 @@ body {
     flex-direction: column;
     background-color: #BBBBBB;
     font-family: "Inter", sans-serif;
+    gap: 128px;
 }
 
 header {
@@ -177,7 +178,6 @@ footer p{
 .about_container {
     display: flex;
     top: 199px;
-    margin-top: 128px;
     flex-direction: column;
     align-items: center;
 }
