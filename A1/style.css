@@ -246,17 +246,25 @@ form {
 
 label {
     font-weight: 700;
-    margin: 5px;
-    padding: 0.8rem;
     font-size: 16px;
     font-family: "Inter", sans-serif;
     color: #333333;
+}
+
+label.feedback {
+    padding: 16px;
+}
+
+label.attachment {
+    padding: 16px;
 }
 
 label:not(.consent){
     display: inline-block;
     width: 140px;
     text-align: right;
+    padding: 16px 16px 0 16px;
+    margin-bottom: 12px;
 }
 
 
