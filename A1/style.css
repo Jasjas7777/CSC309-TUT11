@@ -146,7 +146,8 @@ h1 {
 .button:hover {
     color: #FFFFFF;
     background-color: #007EA8;
-    border: 2px solid #FFFFFF;;
+    border: 2px solid #FFFFFF;
+    cursor: pointer;
 }
 
 body {
@@ -183,7 +184,6 @@ footer p{
 }
 
 .about_container {
-    margin-top: 33px;
     display: flex;
     flex-direction: column;
     align-items: center;
