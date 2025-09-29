@@ -86,13 +86,14 @@ nav>ul>li>a:hover {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 32px;
 }
 
 .other {
     display: flex;
     flex-direction: column;
     align-items: center;
+    top: 32px;
+    position: relative;
     width: 100%;
 }
 
@@ -242,7 +243,6 @@ embed {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 32px;
 }
 
 form {
