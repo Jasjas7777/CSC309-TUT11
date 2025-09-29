@@ -83,6 +83,7 @@ nav>ul>li>a:hover {
 
 
 .home_container {
+    margin-top: 33px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -182,6 +183,7 @@ footer p{
 }
 
 .about_container {
+    margin-top: 33px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -229,6 +231,7 @@ embed {
 }
 
 .contact-container {
+    margin-top: 33px;
     display: flex;
     flex-direction: column;
     align-items: center;
