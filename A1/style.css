@@ -371,13 +371,17 @@ label.consent {
         margin-right: 0;
     }
 
+    .checkbox {
+        margin-left: 0;
+
+    }
+
     label {
         text-align: left;
         align-self: flex-start;
         justify-content: flex-start;
         margin-left: 0;
         margin-top: 0;
-        padding: 0 16px 8px 0;
     }
 
     label:not(.consent) {
@@ -385,6 +389,11 @@ label.consent {
         margin-left: 0;
         margin-top: 0;
         display: block;
+        padding: 0 16px 8px 0;
+    }
+
+    label.consent {
+        margin-top: 8px;
     }
 
     textarea {
@@ -397,6 +406,10 @@ label.consent {
 
     button.feedback {
         margin: 0;
+    }
+
+    .btn {
+        margin-left: 0;
     }
 }
 
