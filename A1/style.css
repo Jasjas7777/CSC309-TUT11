@@ -214,8 +214,6 @@ details > ul > li {
     font-size: 16px;
     font-family: "Inter", sans-serif;
     color: #333333;
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
     text-align: center;
     margin-bottom: 24px;
     margin-top: 24px;
@@ -335,7 +333,7 @@ label.consent {
     }
 
     form {
-        width: 100%;
+        width: calc(100% - 16px);
         height: 467px;
         top: 367px;
         margin-left: 0.5rem;
