@@ -118,8 +118,8 @@ function extend_all_timers(event, form) {
 
     /* TODO: Extend all timers' values by `seconds`. Hint: use Array.forEach. */
     timers.forEach(timer => {
-        if (timer.remaining === 0) {
-            timer.remaining += seconds;
+        timer.remaining += seconds;
+        if (timer.remaining > 0) {
             timer.countdown();
         }
         let min = Math.floor(timer.remaining / 60);
