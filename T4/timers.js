@@ -10,9 +10,9 @@ function update_stats() {
     /* TODO: Complete these stats calculations. 
     Hint: use Array.reduce on timers;
     */
-    let num_expired = timers.filter(t => t.remaining() <= 0 ).length;
-    let num_active = timers.filter(t => t.remaining() > 0).length;
-    let total_seconds = timers.reduce((sum, t) => sum + t.remaining(), 0);
+    let num_expired = timers.filter(t => t.remaining <= 0).length;
+    let num_active  = timers.filter(t => t.remaining > 0).length;
+    let total_seconds = timers.reduce((sum, t) => sum + t.remaining, 0);
     let avg_seconds = timers.length > 0 ? total_seconds / timers.length : 0;
 
     num_active_timers.innerHTML = num_active;
@@ -99,7 +99,7 @@ function create_timer(event, form)
     let main = document.getElementById("main");
     main.appendChild(container);
     timers.push(timer);
-
+    update_stats();
     return false;
 }
 
