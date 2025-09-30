@@ -247,7 +247,7 @@ form {
     height: 51px;
     align-items: center;
     text-align: center;
-    margin-left: 95.2px;
+    margin-left: 115.2px;
 }
 
 .btn {
@@ -338,6 +338,7 @@ label.consent {
     font-weight: 400;
     text-align: left;
     justify-content: left;
+    margin-left: 4px;
 }
 
 @media (max-width: 900px){
