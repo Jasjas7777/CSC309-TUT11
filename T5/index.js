@@ -86,11 +86,11 @@ app.patch("/notes/:noteId", (req, res) => {
 
     const done = req.query.done;
 
-    if (isNaN(noteId) || (done !== "true" && done !== "false")) {
+    if ( done !== "true" && done !== "false") {
         return res.status(400).send("Bad request");
     }
 
-    if (noteId < 0 || noteId >= data.length) {
+    if (isNaN(noteId) || noteId < 0 || noteId >= data.length) {
         return res.status(404).send("Not found");
     }
 
