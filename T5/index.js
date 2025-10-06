@@ -56,11 +56,10 @@ app.get("/notes", (req, res) => {
     } else {
         res.json(data);
     }
-    res.json(data);
 });
 
 app.get("/notes/:noteId", (req, res) => {
-    const noteId = req.params["noteId"];
+    const noteId = Number(req.params["noteId"]);
 
     if (!Number.isInteger(noteId)) {
         return res.status(400).send("Bad request");
@@ -70,7 +69,7 @@ app.get("/notes/:noteId", (req, res) => {
         return res.status(404).send("Not found");
     }
 
-    res.json(data[req.params["noteId"]]);
+    res.json(data[noteId]);
 });
 
 app.post("/notes", (req, res) => {
@@ -82,7 +81,7 @@ app.post("/notes", (req, res) => {
 });
 
 app.patch("/notes/:noteId", (req, res) => {
-    const noteId = req.params["noteID"];
+    const noteId = Number(req.params["noteId"]);
 
     const done = req.query.done;
 
