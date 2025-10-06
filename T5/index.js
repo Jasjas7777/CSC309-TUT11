@@ -60,9 +60,9 @@ app.get("/notes", (req, res) => {
 });
 
 app.get("/notes/:noteId", (req, res) => {
-    const noteId = Number(req.params["noteId"]);
+    const noteId = req.params["noteId"];
 
-    if (isNaN(noteId)) {
+    if (!Number.isInteger(noteId)) {
         return res.status(400).send("Bad request");
     }
 
@@ -82,15 +82,19 @@ app.post("/notes", (req, res) => {
 });
 
 app.patch("/notes/:noteId", (req, res) => {
-    const noteId = Number(req.params["noteID"]);
+    const noteId = req.params["noteID"];
 
     const done = req.query.done;
+
+    if (!Number.isInteger(noteId)) {
+        return res.status(400).send("Bad request");
+    }
 
     if ( done !== "true" && done !== "false") {
         return res.status(400).send("Bad request");
     }
 
-    if (isNaN(noteId) || noteId < 0 || noteId >= data.length) {
+    if (noteId < 0 || noteId >= data.length) {
         return res.status(404).send("Not found");
     }
 
