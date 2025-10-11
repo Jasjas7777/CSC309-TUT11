@@ -17,6 +17,7 @@ const port = (() => {
 
     return num;
 })();
+
 const express = require("express");
 const app = express();
 app.use(express.json());
@@ -24,23 +25,6 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const basicAuth = require('./middleware/basicAuth');
 
-const data = [
-    {
-        title: "Buy groceries",
-        description: "Milk, Bread, Eggs, Butter",
-        completed: false
-    },
-    {
-        title: "Walk the dog",
-        description: "Take Bella for a walk in the park",
-        completed: true
-    },
-    {
-        title: "Read a book",
-        description: "Finish reading 'The Great Gatsby'",
-        completed: false
-    }
-];
 
 app.post("/users", async (req, res) => {
     const {username, password} = req.body;
@@ -59,16 +43,16 @@ app.post("/users", async (req, res) => {
 });
 
 app.post("/notes", basicAuth, async (req, res) => {
-    const {title, description, isCompleted, isPublic} = req.body;
-
     if (!req.user) {
         return res.status(401).json({message: "Not authenticated"});
     }
 
+    const { title, description, completed, public: isPublic } = req.body;
+
     if (
         title === undefined ||
         description === undefined ||
-        isCompleted === undefined ||
+        completed === undefined ||
         isPublic === undefined
     ) {
         return res.status(400).json({message: "Invalid payload"});
@@ -76,8 +60,9 @@ app.post("/notes", basicAuth, async (req, res) => {
 
     const note = await prisma.note.create({
         data: {
-            title, description,
-            completed: isCompleted,
+            title,
+            description,
+            completed,
             public: isPublic,
             userId: req.user.id,
         },
@@ -145,7 +130,7 @@ app.patch("/notes/:noteId", basicAuth, async (req, res) => {
         return res.status(403).json({ message: "Not permitted" });
     }
 
-    const {title, description, isCompleted, isPublic} = req.body;
+    const {title, description, completed, public:isPublic} = req.body;
 
     if (!req.user) {
         return res.status(401).json({message: "Not authenticated"});
@@ -154,7 +139,7 @@ app.patch("/notes/:noteId", basicAuth, async (req, res) => {
     if (
         title === undefined ||
         description === undefined ||
-        isCompleted === undefined ||
+        completed === undefined ||
         isPublic === undefined
     ) {
         return res.status(400).json({message: "Invalid payload"});
@@ -162,7 +147,7 @@ app.patch("/notes/:noteId", basicAuth, async (req, res) => {
 
     const updated = await prisma.note.update({
         where: { id: noteId},
-        data: {title, description, completed: isCompleted,
+        data: {title, description, completed,
             public: isPublic},
     });
     res.json(updated);
