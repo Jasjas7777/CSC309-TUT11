@@ -1,5 +1,8 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
+const express = require("express");
+const app = express();
+app.use(express.json());
 
 const basicAuth = async (req, res, next) => {
     const authHeader = req.headers['authorization'];

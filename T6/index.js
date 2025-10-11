@@ -98,8 +98,6 @@ app.get("/notes", async (req, res) => {
         filter.completed = true;
     } else if (done === "false") {
         filter.completed = false;
-    } else {
-        return res.status(400).json({message: "Invalid payload"});
     }
 
     const notes = await prisma.note.findMany({where: filter});
@@ -111,7 +109,7 @@ app.get("/notes/:noteId", basicAuth, async (req, res) => {
         return res.status(401).json({message: "Not authenticated"});
     }
 
-    const noteId = parseInt(req.params.id, 10);
+    const noteId = parseInt(req.params.noteId, 10);
     if (isNaN(noteId)) {
         return res.status(404).json({ message: "Not found" });
     }
@@ -133,7 +131,7 @@ app.patch("/notes/:noteId", basicAuth, async (req, res) => {
         return res.status(401).json({message: "Not authenticated"});
     }
 
-    const noteId = parseInt(req.params.id, 10);
+    const noteId = parseInt(req.params.noteId, 10);
     if (isNaN(noteId)) {
         return res.status(404).json({ message: "Not found" });
     }
@@ -163,7 +161,8 @@ app.patch("/notes/:noteId", basicAuth, async (req, res) => {
 
     const updated = await prisma.note.update({
         where: { id: noteId},
-        data: {title, description, isCompleted, isPublic},
+        data: {title, description, completed: isCompleted,
+            public: isPublic},
     });
     res.json(updated);
 
