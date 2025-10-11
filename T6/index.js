@@ -17,14 +17,160 @@ const port = (() => {
 
     return num;
 })();
-
 const express = require("express");
 const app = express();
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
+const basicAuth = require('./middleware/basicAuth');
 
-app.use(express.json());
+const data = [
+    {
+        title: "Buy groceries",
+        description: "Milk, Bread, Eggs, Butter",
+        completed: false
+    },
+    {
+        title: "Walk the dog",
+        description: "Take Bella for a walk in the park",
+        completed: true
+    },
+    {
+        title: "Read a book",
+        description: "Finish reading 'The Great Gatsby'",
+        completed: false
+    }
+];
 
-// ADD YOUR WORK HERE
+app.post("/users", async (req, res) => {
+    const {username, password} = req.body;
 
+    if (!username || !password){
+        return res.status(400).json({message: "Invalid payload"});
+    }
+
+    const exist_user = await prisma.user.findUnique({where: {username}});
+    if (exist_user) {
+        return res.status(409).json({message: "A user with that username already exists"});
+    }
+
+    const user = await prisma.user.create({data: {username, password}});
+    res.status(201).json(user);
+});
+
+app.post("/notes", basicAuth, async (req, res) => {
+    const {title, description, isCompleted, isPublic} = req.body;
+
+    if (!req.user) {
+        return res.status(401).json({message: "Not authenticated"});
+    }
+
+    if (
+        title === undefined ||
+        description === undefined ||
+        isCompleted === undefined ||
+        isPublic === undefined
+    ) {
+        return res.status(400).json({message: "Invalid payload"});
+    }
+
+    const note = await prisma.note.create({
+        data: {
+            title, description,
+            completed: isCompleted,
+            public: isPublic,
+            userId: req.user.id,
+        },
+    });
+    res.status(201).json(note);
+});
+
+
+app.get("/notes", async (req, res) => {
+    const done = req.query.done
+
+    if (done && done !== "true" && done !== "false") {
+        return res.status(400).json({message: "Invalid payload"});
+    }
+
+    let filter = {public: true};
+
+    if (done === "true") {
+        filter.completed = true;
+    } else if (done === "false") {
+        filter.completed = false;
+    } else {
+        return res.status(400).json({message: "Invalid payload"});
+    }
+
+    const notes = await prisma.note.findMany({where: filter});
+    res.json(notes);
+});
+
+app.get("/notes/:noteId", basicAuth, async (req, res) => {
+    if (!req.user) {
+        return res.status(401).json({message: "Not authenticated"});
+    }
+
+    const noteId = parseInt(req.params.id, 10);
+    if (isNaN(noteId)) {
+        return res.status(404).json({ message: "Not found" });
+    }
+
+    const note = await prisma.note.findUnique({where: {id: noteId}});
+    if (!note) {
+        return res.status(404).json({ message: "Not found" });
+    }
+    if (note.userId !== req.user.id){
+        return res.status(403).json({ message: "Not permitted" });
+    }
+
+    res.json(note);
+});
+
+
+app.patch("/notes/:noteId", basicAuth, async (req, res) => {
+    if (!req.user) {
+        return res.status(401).json({message: "Not authenticated"});
+    }
+
+    const noteId = parseInt(req.params.id, 10);
+    if (isNaN(noteId)) {
+        return res.status(404).json({ message: "Not found" });
+    }
+
+    const note = await prisma.note.findUnique({where: {id: noteId}});
+    if (!note) {
+        return res.status(404).json({ message: "Not found" });
+    }
+    if (note.userId !== req.user.id){
+        return res.status(403).json({ message: "Not permitted" });
+    }
+
+    const {title, description, isCompleted, isPublic} = req.body;
+
+    if (!req.user) {
+        return res.status(401).json({message: "Not authenticated"});
+    }
+
+    if (
+        title === undefined ||
+        description === undefined ||
+        isCompleted === undefined ||
+        isPublic === undefined
+    ) {
+        return res.status(400).json({message: "Invalid payload"});
+    }
+
+    const updated = await prisma.note.update({
+        where: { id: noteId},
+        data: {title, description, isCompleted, isPublic},
+    });
+    res.json(updated);
+
+});
+
+
+// ==================
 
 const server = app.listen(port, () => {
     console.log(`Server running on port ${port}`);
@@ -34,3 +180,13 @@ server.on('error', (err) => {
     console.error(`cannot start server: ${err.message}`);
     process.exit(1);
 });
+
+
+app.get('/hello', basicAuth, (req, res) => {
+    if (req.user) {
+        res.json(req.user);
+    } else {
+        res.status(401).json({ message: 'Unauthorized' });
+    }
+});
+
