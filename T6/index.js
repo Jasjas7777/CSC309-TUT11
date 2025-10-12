@@ -145,12 +145,17 @@ app.patch("/notes/:noteId", basicAuth, async (req, res) => {
         return res.status(400).json({message: "Invalid payload"});
     }
 
+    const updateData = {};
+    if (title !== undefined) updateData.title = title;
+    if (description !== undefined) updateData.description = description;
+    if (completed !== undefined) updateData.completed = completed;
+    if (isPublic !== undefined) updateData.public = isPublic;
+
     const updated = await prisma.note.update({
         where: { id: noteId},
-        data: {title, description, completed,
-            public: isPublic},
+        data: updateData
     });
-    res.json(updated);
+    res.status(200).json(updated);
 
 });
 
