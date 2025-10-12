@@ -147,6 +147,15 @@ app.patch("/notes/:noteId", basicAuth, async (req, res) => {
         return res.status(400).json({message: "Invalid payload"});
     }
 
+    if (
+        (title !== undefined && typeof title !== "string") ||
+        (description !== undefined && typeof description !== "string") ||
+        (completed !== undefined && typeof completed !== "boolean") ||
+        (isPublic !== undefined && typeof isPublic !== "boolean")
+    ) {
+        return res.status(400).json({ message: "Invalid payload" });
+    }
+
     const updateData = {};
     if (title !== undefined) updateData.title = title;
     if (description !== undefined) updateData.description = description;
