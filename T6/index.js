@@ -84,6 +84,8 @@ app.get("/notes", async (req, res) => {
         filter.completed = true;
     } else if (done === "false") {
         filter.completed = false;
+    } else if (done !== undefined) {
+        return res.status(400).json({message: "Invalid payload"});
     }
 
     const notes = await prisma.note.findMany({where: filter});
