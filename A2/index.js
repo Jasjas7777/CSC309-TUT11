@@ -199,7 +199,8 @@ app.post('/users', jwtAuth, requireRole("cashier", "manager","superuser"), async
             role: "regular",
             verified: false,
             resetToken: token,
-            expiresAt: expiresAt
+            expiresAt: expiresAt,
+            createdAt: new Date(),
         },
     })
 
@@ -219,6 +220,7 @@ app.post('/users', jwtAuth, requireRole("cashier", "manager","superuser"), async
         name: createUser.name,
         email: createUser.email,
         verified: createUser.verified,
+        expiresAt: createUser.expiresAt,
         resetToken: token
     })
 });
