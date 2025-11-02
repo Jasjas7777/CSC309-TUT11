@@ -23,7 +23,7 @@ const app = express();
 const jwt = require('jsonwebtoken');
 const SECRET_KEY = process.env.JWT_SECRET;
 const { PrismaClient } = require('@prisma/client');
-const {uuidv4} = require("zod/v4");
+const { v4: uuidv4 } = require('uuid');
 const prisma = new PrismaClient();
 
 app.use(express.json());
@@ -108,8 +108,8 @@ app.post("/auth/resets", async (req, res) => {
         return res.status(404).json({'error': "User not found"});
     }
     const expiresAt = new Date();
-    const now = new Date()
-    expiresAt.setDate(expiresAt.getHours() + 1)
+    const now = new Date();
+    expiresAt.setHours(expiresAt.getHours() + 1);
     if (req.ip in reqList) {
         if (now - reqList[req.ip] < 60000) {
             return res.status(429).json({"error": "Too Many Requests"});
@@ -168,7 +168,7 @@ app.post("/auth/resets/:resetToken", async (req, res) => {
 //Users Register a new user
 app.post('/users', jwtAuth, requireRole("cashier", "manager","superuser"), async (req, res) => {
     const {utorid, name, email} = req.body;
-    if (!utorid || !password || typeof utorid !== 'string' || typeof name !== 'string' || typeof email !== 'string'){
+    if (!utorid || typeof utorid !== 'string' || typeof name !== 'string' || typeof email !== 'string'){
         return res.status(400).json({"error": "Invalid payload"})
     }
     if (!email.match(/^[a-z0-9]+\.[a-z0-9]+@mail\.utoronto\.ca$/)) {
@@ -202,11 +202,11 @@ app.post('/users', jwtAuth, requireRole("cashier", "manager","superuser"), async
 
     if (createUser) {
         const promotions = await prisma.promotion.findMany({select: {id: true}});
-        for (const promo in promotions) {
-            const updateUser = await prisma.user.update({
-                where: {utorid: createUser.utorid},
-                data: {promotions: {connect: {id: promo.id}}}
-            })
+        for (const promo of promotions) {
+            await prisma.user.update({
+                where: { utorid: createUser.utorid },
+                data: { promotions: { connect: { id: promo.id } } }
+            });
         }
     }
 
