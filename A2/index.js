@@ -20,8 +20,11 @@ const port = (() => {
 
 const express = require("express");
 const app = express();
+
 const jwt = require('jsonwebtoken');
+require('dotenv').config();
 const SECRET_KEY = process.env.JWT_SECRET;
+
 const { PrismaClient } = require('@prisma/client');
 const { v4: uuidv4 } = require('uuid');
 const prisma = new PrismaClient();
@@ -320,6 +323,11 @@ app.get('/users/:userId', jwtAuth, requireRole("cashier", "manager","superuser")
     }
 
     return res.status(200).json(userFound);
+})
+
+//users/:userId Update a specific user's various statuses and some information
+app.patch('/users/:userId', jwtAuth, requireRole( "manager","superuser"), async (req, res) => {
+
 })
 
 const server = app.listen(port, () => {
