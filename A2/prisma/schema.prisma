@@ -28,6 +28,71 @@ enum PromotionType {
 }
 
 model User {
-  id       Int    @id @default(autoincrement())
-  username String
+  id Int @id @default(autoincrement())
+  utorid String @unique
+  email String @unique
+  name String @default("")
+  role RoleType @default(regular)
+  password String @default("")
+  verified Boolean @default(false)
+  activated Boolean @default(false)
+  birthday DateTime?
+  points Int @default(0)
+  createdAt DateTime
+  lastLogin DateTime?
+  avatarUrl String?
+  transactions Transaction[]
+  promotions Promotion[] @relation("UserPromotions")
+  suspicious Boolean @default(false)
+  expiresAt DateTime?
+  resetToken String?
+  eventsAttendeded Event[] @relation("EventsOrganizers")
+  eventsOrganized Event[] @relation("EventsGuests")
+}
+
+model Transaction {
+  id Int @id @default(autoincrement())
+  utorid String @unique
+  utoridUser User @relation(fields: [utorid], references: [utorid])
+  type String
+  spent Float
+  rate Float?
+  promotionIds Promotion[] @relation("PromotionsTransactions")
+  remark String?
+  createdBy String
+  amount Int
+  relatedId Int?
+  suspicious Boolean @default(false)
+  processed Boolean
+}
+
+model Promotion {
+  id Int @id @default(autoincrement())
+  name String
+  description String
+  type String
+  startTime DateTime
+  endTime DateTime
+  minSpending Float?
+  rate Float?
+  points Int?
+  users User[] @relation("UserPromotions")
+  transactions Transaction[] @relation("PromotionsTransactions")
+}
+
+model Event {
+  id Int @id @default(autoincrement())
+  name String
+  description String
+  location String
+  startTime DateTime
+  endTime DateTime
+  capacity Int
+  organizers User[] @relation("EventsOrganizers")
+  pointsRemain Int
+  pointsAwarded Int
+  published Boolean
+  guests User[] @relation("EventsGuests")
+  numGuests Int
+
 }
