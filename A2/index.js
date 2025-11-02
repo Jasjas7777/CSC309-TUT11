@@ -171,7 +171,13 @@ app.post("/auth/resets/:resetToken", async (req, res) => {
 //Users Register a new user
 app.post('/users', jwtAuth, requireRole("cashier", "manager","superuser"), async (req, res) => {
     const {utorid, name, email} = req.body;
-    if (!utorid || typeof utorid !== 'string' || typeof name !== 'string' || typeof email !== 'string'){
+    if (!utorid || !name || ! email) {
+        return res.status(400).json({"error": "Invalid payload"})
+    }
+    if (typeof utorid !== 'string' || typeof name !== 'string' || typeof email !== 'string'){
+        return res.status(400).json({"error": "Invalid payload"})
+    }
+    if ((utorid.length !== 7 && utorid.length !== 8) || !utorid.match(/^[a-z0-9]+$/)) {
         return res.status(400).json({"error": "Invalid payload"})
     }
     if (!email.match(/^[a-z0-9]+\.[a-z0-9]+@mail\.utoronto\.ca$/)) {
