@@ -266,10 +266,15 @@ app.get('/users', jwtAuth, requireRole('manager', 'superuser'), async (req, res)
         }
     }
     if (activated !== undefined) {
-        if (typeof activated !== 'boolean'){
-            return res.status(400).json({"error": "Invalid activated payload"});
+        if (activated !== 'true' && activated !== 'false'){
+            return res.status(400).json({"error": "Invalid verified payload"});
         }
-        where['activated'] = activated;
+        if (activated === 'true') {
+            where['activated'] = true;
+        }
+        if (activated === 'false') {
+            where['activated'] = false;
+        }
     }
     if (!Number.isInteger(page) || !Number.isInteger(limit) || page < 1 || limit < 1){
         return res.status(400).json({"error": "Invalid payload"});
