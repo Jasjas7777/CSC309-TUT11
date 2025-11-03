@@ -255,10 +255,15 @@ app.get('/users', jwtAuth, requireRole('manager', 'superuser'), async (req, res)
         where['role'] = role;
     }
     if (verified !== undefined) {
-        if (typeof verified !== 'boolean'){
+        if (verified !== true && verified !== false){
             return res.status(400).json({"error": "Invalid verified payload"});
         }
-        where['verified'] = verified;
+        if (verified === true || verified === 'true') {
+            where['verified'] = true;
+        }
+        if (verified === false || verified === 'false') {
+            where['verified'] = false;
+        }
     }
     if (activated !== undefined) {
         if (typeof activated !== 'boolean'){
