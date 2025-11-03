@@ -180,6 +180,9 @@ app.post('/users', jwtAuth, requireRole("cashier", "manager","superuser"), async
     if ((utorid.length !== 7 && utorid.length !== 8) || !utorid.match(/^[a-z0-9]+$/)) {
         return res.status(400).json({"error": "Invalid payload"})
     }
+    if(name.length > 50){
+        return res.status(400).json({"error": "Invalid payload"})
+    }
     if (!email.match(/^[a-z0-9]+\.[a-z0-9]+@mail\.utoronto\.ca$/)) {
         return res.status(400).json({"error": "Invalid email"})
     }
@@ -335,7 +338,50 @@ app.get('/users/:userId', jwtAuth, requireRole("cashier", "manager","superuser")
 
 //users/:userId Update a specific user's various statuses and some information
 app.patch('/users/:userId', jwtAuth, requireRole( "manager","superuser"), async (req, res) => {
+    const userId = Number.parseInt(req.params['userId']);
+    if (isNaN(userId)) {
+        return res.status(404).json({'error': 'Invalid url'});
+    }
 
+    const {email, verified, suspicious, role} = req.body;
+    if(email === undefined && verified === undefined && suspicious === undefined && role === undefined){
+        return res.status(400).json({"error": "Invalid payload"});
+    }
+
+    const data = {};
+    const select = {
+        id: true,
+        utorid: true,
+        name: true,
+    };
+    if (email !== undefined) {
+        data['email'] = email;
+        select['email'] = true;
+    }
+    if (suspicious !== undefined) {
+        data['suspicious'] = suspicious;
+        select['suspicious'] = true;
+    }
+    if (verified !== undefined) {
+        data['verified'] = verified;
+        select['verified'] = true;
+    }
+    if (role !== undefined) {
+        const rolesToPromote = ['cashier', 'regular'];
+        if (!rolesToPromote.includes(role.toLowerCase())){
+            return res.status(403).json({'error': 'unauthorized promotion'});
+        }
+        data['role'] = role;
+        select['role'] = true;
+    }
+
+    const updateUser = await prisma.user.update({
+        where: {id: userId},
+        select,
+        data
+        });
+
+    return res.status(200).json(updateUser);
 })
 
 const server = app.listen(port, () => {
