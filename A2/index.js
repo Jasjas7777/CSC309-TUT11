@@ -72,7 +72,7 @@ function requireRole(...roles) {
     return (req, res, next) => {
         const user = req.user;
         if (!roles.includes(user.role.toLowerCase())){
-            return res.status(401).json({'error': "Unauthorized"});
+            return res.status(403).json({'error': "Unauthorized"});
         }
         next();
     };
