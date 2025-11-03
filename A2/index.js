@@ -372,10 +372,16 @@ app.patch('/users/:userId', jwtAuth, requireRole( "manager","superuser"), async 
         select['email'] = true;
     }
     if (suspicious !== undefined) {
+        if (suspicious !== 'true' && suspicious !== 'false'){
+            return res.status(400).json({"error": "Invalid suspicious payload"});
+        }
         data['suspicious'] = suspicious;
         select['suspicious'] = true;
     }
     if (verified !== undefined) {
+        if (verified !== 'true' && verified !== 'false'){
+            return res.status(400).json({"error": "Invalid verified payload"});
+        }
         data['verified'] = verified;
         select['verified'] = true;
     }
