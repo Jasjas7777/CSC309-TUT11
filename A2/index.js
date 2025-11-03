@@ -355,6 +355,9 @@ app.patch('/users/:userId', jwtAuth, requireRole( "manager","superuser"), async 
         name: true,
     };
     if (email !== undefined) {
+        if (!email.match(/^[a-z0-9]+\.[a-z0-9]+@mail\.utoronto\.ca$/)) {
+            return res.status(400).json({"error": "Invalid email"})
+        }
         data['email'] = email;
         select['email'] = true;
     }
