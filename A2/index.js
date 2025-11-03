@@ -375,14 +375,22 @@ app.patch('/users/:userId', jwtAuth, requireRole( "manager","superuser"), async 
         if (suspicious !== 'true' && suspicious !== 'false'){
             return res.status(400).json({"error": "Invalid suspicious payload"});
         }
-        data['suspicious'] = suspicious;
+        if (suspicious === true || suspicious === "true") {
+            data['suspicious'] = true;
+        } else if (suspicious === false || suspicious === "false") {
+            data['suspicious'] = false;
+        }
         select['suspicious'] = true;
     }
     if (verified !== undefined) {
         if (verified !== 'true' && verified !== 'false'){
             return res.status(400).json({"error": "Invalid verified payload"});
         }
-        data['verified'] = verified;
+        if (verified === true || verified === "true") {
+            data['verified'] = true;
+        } else if (verified === false || verified === "false") {
+            data['verified'] = false;
+        }
         select['verified'] = true;
     }
     if (role !== undefined) {
