@@ -154,7 +154,7 @@ app.post("/auth/resets/:resetToken", async (req, res) => {
         return res.status(404).json({'error': "User not found"});
     }
     const now = new Date();
-    if (user.resetToken !== token) {
+    if (user.resetToken !== resetToken) {
         return res.status(401).json({'error': "Token not matched"})
     } else if (user.expiresAt < now) {
         return res.status(410).json({'error': "Reset token expired"});
@@ -223,7 +223,7 @@ app.post('/users', jwtAuth, requireRole("cashier", "manager","superuser"), async
         }
     }
 
-    return res.status(200).json({
+    return res.status(201).json({
         id: createUser.id,
         utorid: createUser.utorid,
         name: createUser.name,
