@@ -293,7 +293,7 @@ app.get('/users', jwtAuth, requireRole('manager', 'superuser'), async (req, res)
 
     const count = await prisma.user.count({where});
 
-    return res.status(200).json({'count': count, "result": userList});
+    return res.status(200).json({'count': count, "results": userList});
 })
 
 
