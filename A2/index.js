@@ -386,11 +386,7 @@ app.patch('/users/:userId', jwtAuth, requireRole( "manager","superuser"), async 
         if (verified !== 'true' && verified !== 'false'){
             return res.status(400).json({"error": "Invalid verified payload"});
         }
-        if (verified === true || verified === "true") {
-            data['verified'] = true;
-        } else if (verified === false || verified === "false") {
-            data['verified'] = false;
-        }
+        data['verified'] = true;
         select['verified'] = true;
     }
     if (role !== undefined) {
