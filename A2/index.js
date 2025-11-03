@@ -29,6 +29,9 @@ const { PrismaClient } = require('@prisma/client');
 const { v4: uuidv4 } = require('uuid');
 const prisma = new PrismaClient();
 
+const multer  = require('multer');
+const upload = multer({ dest: './public/data/uploads/' })
+
 app.use(express.json());
 
 // JWT Auth middleware
@@ -360,9 +363,9 @@ app.patch('/users/:userId', jwtAuth, requireRole( "manager","superuser"), async 
 
     const data = {};
     const select = {
-        id: true,
-        utorid: true,
-        name: true,
+        'id': true,
+        'utorid': true,
+        'name': true,
     };
     if (email !== undefined) {
         if (!email.match(/^[a-z0-9]+\.[a-z0-9]+@mail\.utoronto\.ca$/)) {
@@ -389,7 +392,7 @@ app.patch('/users/:userId', jwtAuth, requireRole( "manager","superuser"), async 
         data['verified'] = true;
         select['verified'] = true;
     }
-    if (role !== undefined) {
+    if (role !== undefined && role !== null) {
         const rolesToPromote = ['cashier', 'regular'];
         if (!rolesToPromote.includes(role.toLowerCase())){
             return res.status(403).json({'error': 'unauthorized promotion'});
@@ -409,17 +412,124 @@ app.patch('/users/:userId', jwtAuth, requireRole( "manager","superuser"), async 
 
 
 //users/me Update the current logged-in use's information
-app.patch("/users/me", jwtAuth, async (req, res) => {
+app.patch("/users/me", jwtAuth, upload.single('avatar'), async (req, res) => {
     const {name, email, birthday, avatar} = req.body;
+    const user = req.user;
     if(email === undefined && birthday === undefined && avatar === undefined && name === undefined){
         return res.status(400).json({"error": "Invalid payload"});
     }
 
     const data = {};
-    const select = {};
+    const select = {
+        'id':true,
+        'utorid': true,
+        'role': true,
+        'points': true,
+        'createdAt': true,
+        'lastLogin': true,
+        'verified': true,
+    };
 
+    if (name !== undefined) {
+        if(name.length > 50 || typeof name !== "string"){
+            return res.status(400).json({"error": "Invalid payload"})
+        }
+        data['name'] = name;
+        select['name'] = true;
+    }
+    if (email !== undefined) {
+        if (!email.match(/^[a-z0-9]+\.[a-z0-9]+@mail\.utoronto\.ca$/) || typeof email !== "string") {
+            return res.status(400).json({"error": "Invalid email"})
+        }
+        const findEmail = await prisma.user.findUnique({where: {email: email}});
+        if (findEmail) {
+            return res.status(400).json({"error": "Email already exist"})
+
+        }
+        data['email'] = email;
+        select['email'] = true;
+    }
+    if (birthday !== undefined){
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(birthday) || typeof birthday !== 'string'){
+            return res.status(400).json({"error": "Invalid birthday"})
+        }
+        data['birthday'] = birthday;
+        select['birthday'] = true;
+    }
+    if (avatar !== undefined) {
+        if (typeof avatar !== 'string') {
+            return res.status(400).json({"error": "Invalid avatar"})
+        }
+        if (req.file) {
+            data.avatarUrl = `${req.file.filename}`;
+            select['avatar'] = true;
+        }
+    }
+
+    const updateUser = await prisma.user.update({
+        where: {id: user.id},
+        data,
+        select
+    })
+    return res.status(200).json(updateUser);
 });
 
+//users/me Retrieve the current logged-in user's information
+app.get("/users/me", jwtAuth, async (req, res) => {
+    const user = req.user;
+
+    const findUser = await prisma.user.findUnique({
+        where: {id: user.id},
+        omit: {
+            password: true,
+            activated: true,
+            suspicious: true,
+            expiresAt: true,
+            resetToken: true
+        },
+        include: {promotions: true,}
+    })
+
+    if (!findUser) {
+        return res.status(404).json({'error': 'User not found'});
+    }
+
+    return res.status(200).json(findUser);
+})
+
+//users/me/password Update the current logged-in user's password
+app.patch("/users/me/password", jwtAuth, async (req, res)=> {
+    const user = req.user;
+    const oldpwd = req.body.old;
+    const newpwd = req.body.new;
+
+    if (typeof oldpwd !== 'string' || typeof newpwd !== 'string'){
+        return res.status(400).json({"error": "Invalid payload"})
+    }
+
+    const findUser = await prisma.user.findUnique({where: {id: user.id}});
+    if (!findUser) {
+        return res.status(404).json({'error': 'User not found'});
+    }
+    if (findUser.password !== oldpwd) {
+        return res.status(403).json({"error": "Incorrect current password"})
+    }
+    if (newpwd.length < 8 ||
+        newpwd.length > 20 ||
+        !/[A-Z]/.test(newpwd) ||
+        !/[a-z]/.test(newpwd) ||
+        !/[0-9]/.test(newpwd) ||
+        !/[@$!%*?&]/.test(newpwd)
+    ) {
+        return res.status(400).json({"error": "Invalid payload"})
+    }
+
+    const updateUser = await prisma.user.update({
+        where: {id: user.id},
+        data: {password: newpwd}
+    });
+    return res.status(200).send();
+})
 
 const server = app.listen(port, () => {
     console.log(`Server running on port ${port}`);
