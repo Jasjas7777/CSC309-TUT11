@@ -371,7 +371,7 @@ app.patch('/users/:userId', jwtAuth, requireRole( "manager","superuser"), async 
         data['email'] = email;
         select['email'] = true;
     }
-    if (suspicious !== undefined) {
+    if (suspicious !== undefined && verified !== null) {
         if (suspicious !== 'true' && suspicious !== 'false'){
             return res.status(400).json({"error": "Invalid suspicious payload"});
         }
@@ -382,8 +382,8 @@ app.patch('/users/:userId', jwtAuth, requireRole( "manager","superuser"), async 
         }
         select['suspicious'] = true;
     }
-    if (verified !== undefined) {
-        if (verified !== 'true' && verified !== 'false'){
+    if (verified !== undefined && verified !== null) {
+        if (verified !== 'true' && verified !== true ){
             return res.status(400).json({"error": "Invalid verified payload"});
         }
         data['verified'] = true;
@@ -405,7 +405,21 @@ app.patch('/users/:userId', jwtAuth, requireRole( "manager","superuser"), async 
         });
 
     return res.status(200).json(updateUser);
-})
+});
+
+
+//users/me Update the current logged-in use's information
+app.patch("/users/me", jwtAuth, async (req, res) => {
+    const {name, email, birthday, avatar} = req.body;
+    if(email === undefined && birthday === undefined && avatar === undefined && name === undefined){
+        return res.status(400).json({"error": "Invalid payload"});
+    }
+
+    const data = {};
+    const select = {};
+
+});
+
 
 const server = app.listen(port, () => {
     console.log(`Server running on port ${port}`);
