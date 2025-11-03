@@ -266,7 +266,7 @@ app.get('/users', jwtAuth, requireRole('manager', 'superuser'), async (req, res)
         }
         where['activated'] = activated;
     }
-    if (!Number.isInteger(page) || !Number.isInteger(limit)){
+    if (!Number.isInteger(page) || !Number.isInteger(limit) || page < 1 || limit < 1){
         return res.status(400).json({"error": "Invalid payload"});
     }
 
