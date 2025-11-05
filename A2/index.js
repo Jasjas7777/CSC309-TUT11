@@ -368,7 +368,7 @@ app.patch('/users/:userId', jwtAuth, requireRole( "manager","superuser"), async 
         'name': true,
     };
     if (email !== undefined && email !== null) {
-        if (!email.match(/^[a-z0-9]+\.[a-z0-9]+@mail\.utoronto\.ca$/)) {
+        if (typeof email !== "string" || !email.match(/^[a-z0-9]+\.[a-z0-9]+@mail\.utoronto\.ca$/)) {
             return res.status(400).json({"error": "Invalid email"})
         }
         data['email'] = email;
@@ -438,7 +438,7 @@ app.patch("/users/me", jwtAuth, upload.single('avatar'), async (req, res) => {
         select['name'] = true;
     }
     if (email !== undefined) {
-        if (!email.match(/^[a-z0-9]+\.[a-z0-9]+@mail\.utoronto\.ca$/) || typeof email !== "string") {
+        if (typeof email !== "string" ||!email.match(/^[a-z0-9]+\.[a-z0-9]+@mail\.utoronto\.ca$/) || typeof email !== "string") {
             return res.status(400).json({"error": "Invalid email"})
         }
         const findEmail = await prisma.user.findUnique({where: {email: email}});
