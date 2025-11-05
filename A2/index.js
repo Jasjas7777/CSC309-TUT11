@@ -400,10 +400,10 @@ app.patch('/users/:userId', jwtAuth, requireRole( "manager","superuser"), async 
         if (typeof role != "string") {
             return res.status(400).json({'error': 'Invalid payload'});
         }
-        if (user.role === 'manager' && !rolesToPromote.includes(role.toLowerCase())){
-            return res.status(403).json({'error': 'Unauthorized promotion'});
-        }
-        if (!allowedRoles.includes(role.toLowerCase())){
+        //if (user.role === 'manager' && !(rolesToPromote.includes(role.toLowerCase()))){
+            //return res.status(403).json({'error': 'Unauthorized promotion'});
+        //}
+        if (!(allowedRoles.includes(role.toLowerCase()))){
             return res.status(400).json({'error': 'Invalid payload'});
         }
         data['role'] = role;
