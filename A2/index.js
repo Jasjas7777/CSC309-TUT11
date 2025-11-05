@@ -398,13 +398,6 @@ app.patch('/users/:userId', jwtAuth, requireRole( "manager","superuser"), async 
         if (user.role === 'cashier' || user.role === 'regular') {
             return res.status(400).json({'error': 'unauthorized promotion'});
         }
-        let rolesToPromote = ['cashier', 'regular'];
-        if (user.role === 'superuser'){
-            rolesToPromote = ['cashier', 'regular', 'manager', 'superuser'];
-        }
-        if (!rolesToPromote.includes(role)){
-            return res.status(400).json({'error': 'unauthorized promotion'});
-        }
         data['role'] = role;
         select['role'] = true;
     }
