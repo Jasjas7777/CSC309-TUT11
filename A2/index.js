@@ -541,13 +541,7 @@ app.patch("/users/me/password", jwtAuth, async (req, res)=> {
 });
 
 
-//transactions -Create a new purchase transaction.
-app.post("/transactions", jwtAuth, requireRole('cashier', 'manager', 'superuser'), async (req, res) => {
-    const {utorid, type, spent, promotionIds, remark} = req.body;
-    if (utorid === undefined || type === undefined || spent === undefined) {
-        return res.status(400).json({"error": "Invalid payload"})
-    }
-})
+
 
 const server = app.listen(port, () => {
     console.log(`Server running on port ${port}`);
