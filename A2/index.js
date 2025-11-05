@@ -395,7 +395,7 @@ app.patch('/users/:userId', jwtAuth, requireRole( "manager","superuser"), async 
     if (role !== undefined && role !== null) {
         const rolesToPromote = ['cashier', 'regular'];
         if (!rolesToPromote.includes(role.toLowerCase())){
-            return res.status(403).json({'error': 'unauthorized promotion'});
+            return res.status(400).json({'error': 'unauthorized promotion'});
         }
         data['role'] = role;
         select['role'] = true;
@@ -529,6 +529,15 @@ app.patch("/users/me/password", jwtAuth, async (req, res)=> {
         data: {password: newpwd}
     });
     return res.status(200).send();
+});
+
+
+//transactions -Create a new purchase transaction.
+app.post("/transactions", jwtAuth, requireRole('cashier', 'manager', 'superuser'), async (req, res) => {
+    const {utorid, type, spent, promotionIds, remark} = req.body;
+    if (utorid === undefined || type === undefined || spent === undefined) {
+        return res.status(400).json({"error": "Invalid payload"})
+    }
 })
 
 const server = app.listen(port, () => {
