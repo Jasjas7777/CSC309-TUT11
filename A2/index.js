@@ -351,7 +351,6 @@ app.get('/users/:userId', jwtAuth, requireRole("cashier", "manager","superuser")
 
 //users/:userId Update a specific user's various statuses and some information
 app.patch('/users/:userId', jwtAuth, requireRole( "manager","superuser"), async (req, res) => {
-    const user = req.user;
 
     const userId = Number.parseInt(req.params['userId']);
     if (isNaN(userId)) {
@@ -394,9 +393,9 @@ app.patch('/users/:userId', jwtAuth, requireRole( "manager","superuser"), async 
         data['verified'] = true;
         select['verified'] = true;
     }
-    if (role !== undefined && role !== null) {
+    if (role !== undefined) {
         const rolesToPromote = ['cashier', 'regular', 'manager', 'superuser'];
-        if (typeof role !== 'string' || !(rolesToPromote.includes(role.toLowerCase()))){
+        if (typeof role !== 'string' || !(rolesToPromote.includes(role))){
             return res.status(400).json({'error': 'Invalid payload'});
         }
         data['role'] = role;
