@@ -351,6 +351,8 @@ app.get('/users/:userId', jwtAuth, requireRole("cashier", "manager","superuser")
 
 //users/:userId Update a specific user's various statuses and some information
 app.patch('/users/:userId', jwtAuth, requireRole( "manager","superuser"), async (req, res) => {
+    const user = req.user;
+
     const userId = Number.parseInt(req.params['userId']);
     if (isNaN(userId)) {
         return res.status(404).json({'error': 'Invalid url'});
@@ -393,8 +395,14 @@ app.patch('/users/:userId', jwtAuth, requireRole( "manager","superuser"), async 
         select['verified'] = true;
     }
     if (role !== undefined && role !== null) {
-        const rolesToPromote = ['cashier', 'regular'];
-        if (!rolesToPromote.includes(role.toLowerCase())){
+        if (user.role === 'cashier' || user.role === 'regular') {
+            return res.status(400).json({'error': 'unauthorized promotion'});
+        }
+        let rolesToPromote = ['cashier', 'regular'];
+        if (user.role === 'superuser'){
+            rolesToPromote = ['cashier', 'regular', 'manager', 'superuser'];
+        }
+        if (!rolesToPromote.includes(role)){
             return res.status(400).json({'error': 'unauthorized promotion'});
         }
         data['role'] = role;
