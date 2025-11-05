@@ -395,23 +395,16 @@ app.patch('/users/:userId', jwtAuth, requireRole( "manager","superuser"), async 
         select['verified'] = true;
     }
     if (role !== undefined && role !== null) {
-        if (typeof role !== "string") {
-            return res.status(400).json({ error: "invalid payload" });
+        const allowedRoles = ['cashier', 'regular', 'manager', 'superuser' ];
+        const rolesToPromote = ['cashier', 'regular'];
+        if (typeof role != "string") {
+            return res.status(400).json({'error': 'Invalid payload'});
         }
-
-        let allowedRoles = [];
-
-        // Manager can only set cashier or regular
-        if (user.role === "manager") {
-            allowedRoles = ["cashier", "regular"];
+        if (user.role === 'manager' && !rolesToPromote.includes(role.toLowerCase())){
+            return res.status(403).json({'error': 'Unauthorized promotion'});
         }
-        // Superuser can set anything
-        else if (user.role === "superuser") {
-            allowedRoles = ["cashier", "regular", "manager", "superuser"];
-        }
-
-        if (!allowedRoles.includes(role)) {
-            return res.status(403).json({ error: "unauthorized promotion" });
+        if (!allowedRoles.includes(role.toLowerCase())){
+            return res.status(400).json({'error': 'Invalid payload'});
         }
         data['role'] = role;
         select['role'] = true;
