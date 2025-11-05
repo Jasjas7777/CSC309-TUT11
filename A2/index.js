@@ -374,7 +374,7 @@ app.patch('/users/:userId', jwtAuth, requireRole( "manager","superuser"), async 
         data['email'] = email;
         select['email'] = true;
     }
-    if (suspicious !== undefined && verified !== null) {
+    if (suspicious !== undefined && suspicious !== null) {
         if (suspicious !== 'true' && suspicious !== 'false'){
             return res.status(400).json({"error": "Invalid suspicious payload"});
         }
