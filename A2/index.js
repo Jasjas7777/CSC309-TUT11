@@ -395,16 +395,20 @@ app.patch('/users/:userId', jwtAuth, requireRole( "manager","superuser"), async 
         select['verified'] = true;
     }
     if (role !== undefined && role !== null) {
-        if (user.role === 'cashier' || user.role === 'regular') {
-            return res.status(400).json({'error': 'unauthorized promotion'});
+        if (typeof role !== "string") {
+            return res.status(400).json({'error': 'invalid payload'});
         }
+
         const rolesToPromote = ['cashier', 'regular'];
-        if (user.role === 'superuser'){
-            rolesToPromote.push('manager');
-            rolesToPromote.push('superuser');
+
+        if (!(rolesToPromote.includes(role)) && user.role === 'manager') {
+            return res.status(403).json({ "error": "unauthorized promotion" });
         }
-        if (typeof role !== "string" || !rolesToPromote.includes(role)){
-            return res.status(400).json({'error': 'unauthorized promotion'});
+        rolesToPromote.push('manager');
+        rolesToPromote.push('superuser');
+
+        if (!rolesToPromote.includes(role)){
+            return res.status(400).json({'error': 'invalid payload'});
         }
         data['role'] = role;
         select['role'] = true;
