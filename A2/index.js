@@ -394,9 +394,9 @@ app.patch('/users/:userId', jwtAuth, requireRole( "manager","superuser"), async 
         select['verified'] = true;
     }
     if (role !== undefined) {
-        const rolesToPromote = ['cashier', 'regular', 'manager', 'superuser'];
-        if (typeof role !== 'string' || !(rolesToPromote.includes(role))){
-            return res.status(400).json({'error': 'Invalid payload'});
+        const rolesToPromote = ['cashier', 'regular'];
+        if (!rolesToPromote.includes(role.toLowerCase())){
+            return res.status(403).json({'error': 'unauthorized promotion'});
         }
         data['role'] = role;
         select['role'] = true;
