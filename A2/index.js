@@ -331,14 +331,14 @@ app.patch("/users/me", jwtAuth, upload.single('avatar'), async (req, res) => {
         'verified': true,
     };
 
-    if (name !== undefined) {
+    if (name !== undefined && name !== null) {
         if(name.length > 50 || typeof name !== "string"){
             return res.status(400).json({"error": "Invalid payload"})
         }
         data['name'] = name;
         select['name'] = true;
     }
-    if (email !== undefined) {
+    if (email !== undefined && email !== null) {
         if (typeof email !== "string" ||!email.match(/^[a-z0-9]+\.[a-z0-9]+@mail\.utoronto\.ca$/)) {
             return res.status(400).json({"error": "Invalid email"})
         }
@@ -350,11 +350,17 @@ app.patch("/users/me", jwtAuth, upload.single('avatar'), async (req, res) => {
         data['email'] = email;
         select['email'] = true;
     }
-    if (birthday !== undefined){
+    if (birthday !== undefined && birthday !== null){
         if (!/^\d{4}-\d{2}-\d{2}$/.test(birthday) || typeof birthday !== 'string'){
             return res.status(400).json({"error": "Invalid birthday"})
         }
-        data['birthday'] = birthday;
+        const [year, month, day] = birthday.split("-").map(Number);
+        const now = new Date();
+        if (year > now.getFullYear() || month < 1 || month > 12 | day < 1 || day > 31
+        || (month === 2 && day > 28)) {
+            return res.status(400).json({"error": "Invalid birthday"})
+        }
+        data['birthday'] = new Date(birthday);
         select['birthday'] = true;
     }
 
@@ -435,7 +441,7 @@ app.get('/users/:userId', jwtAuth, requireRole("cashier", "manager","superuser")
 
     const userId = Number.parseInt(req.params['userId']);
     if (isNaN(userId)) {
-        return res.status(404).json({'error': 'Invalid url'});
+        return res.status(404).json({'error': 'Invalid userId'});
     }
 
     const select = {
