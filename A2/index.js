@@ -329,6 +329,10 @@ app.patch("/users/me", jwtAuth, upload.single('avatar'), async (req, res) => {
         'createdAt': true,
         'lastLogin': true,
         'verified': true,
+        'name': true,
+        'email': true,
+        'avatarUrl':true,
+        'birthday': true
     };
 
     if (name !== undefined && name !== null) {
@@ -336,7 +340,6 @@ app.patch("/users/me", jwtAuth, upload.single('avatar'), async (req, res) => {
             return res.status(400).json({"error": "Invalid payload"})
         }
         data['name'] = name;
-        select['name'] = true;
     }
     if (email !== undefined && email !== null) {
         if (typeof email !== "string" ||!email.match(/^[a-z0-9]+\.[a-z0-9]+@mail\.utoronto\.ca$/)) {
@@ -348,7 +351,6 @@ app.patch("/users/me", jwtAuth, upload.single('avatar'), async (req, res) => {
 
         }
         data['email'] = email;
-        select['email'] = true;
     }
     if (birthday !== undefined && birthday !== null){
         if (!/^\d{4}-\d{2}-\d{2}$/.test(birthday) || typeof birthday !== 'string'){
@@ -361,12 +363,10 @@ app.patch("/users/me", jwtAuth, upload.single('avatar'), async (req, res) => {
             return res.status(400).json({"error": "Invalid birthday"})
         }
         data['birthday'] = new Date(birthday);
-        select['birthday'] = true;
     }
 
     if (req.file) {
         data.avatarUrl = `${req.file.filename}`;
-        select['avatar'] = true;
     }
 
     const updateUser = await prisma.user.update({
