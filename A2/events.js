@@ -313,7 +313,7 @@ router.post('/:eventId/guests', jwtAuth, async (req, res) => {
     }
 
     const isOrganizer = findEvent.organizers.some(organizer => organizer['id'] === user.id);
-    if (user.role !== 'manager' || user.role !== 'superuser' || !isOrganizer){
+    if (user.role !== 'manager' && user.role !== 'superuser' && !isOrganizer){
         return res.status(403).json({ "error": "Not authorized to add guest" });
     }
     const isOgranizerbyUtorid = findEvent.organizers.some(organizer => organizer['utorid'] === utorid);
