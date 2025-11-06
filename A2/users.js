@@ -203,7 +203,7 @@ router.patch("/me", jwtAuth, upload.single('avatar'), async (req, res) => {
         }
         const [year, month, day] = birthday.split("-").map(Number);
         const now = new Date();
-        if (year > now.getFullYear() || month < 1 || month > 12 | day < 1 || day > 31
+        if (year > now.getFullYear() || month < 1 || month > 12 || day < 1 || day > 31
             || (month === 2 && day > 28)) {
             return res.status(400).json({"error": "Invalid birthday"})
         }
@@ -246,7 +246,7 @@ router.get("/me", jwtAuth, async (req, res) => {
 })
 
 //users/me/password Update the current logged-in user's password
-app.patch("/me/password", jwtAuth, async (req, res)=> {
+router.patch("/me/password", jwtAuth, async (req, res)=> {
     const user = req.user;
     const oldpwd = req.body.old;
     const newpwd = req.body.new;
