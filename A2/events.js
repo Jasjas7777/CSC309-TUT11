@@ -198,7 +198,7 @@ router.patch('/:eventId', jwtAuth, async (req, res) => {
     if (isNaN(eventId)) {
         return res.status(404).json({ "error": "invalid eventId" });
     }
-    const findEvent = await prisma.event.findUnique({where: {id: eventId}});
+    const findEvent = await prisma.event.findUnique({where: {id: eventId}, include: {organizers: true}});
     if (!findEvent) {
         return res.status(404).json({ "error": "event not found" });
     }
