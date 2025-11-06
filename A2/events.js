@@ -136,6 +136,7 @@ router.get('/', jwtAuth, async (req, res) => {
 
     const omit = {'description': true};
     if (req.user.role === 'regular' || req.user.role === 'cashier') {
+        where['published'] = true;
         omit['pointsRemain'] = true;
         omit['pointsAwarded'] = true;
         omit['published'] = true;
