@@ -545,7 +545,69 @@ app.patch('/users/:userId', jwtAuth, requireRole( "manager","superuser"), async 
 });
 
 
+function isIsoDate(date) {
+    if (typeof date !== "string") return false;
 
+    const isoPattern =
+        /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}(:\d{2}(?:\.\d{1,6})?)?(Z|[+-]\d{2}:\d{2})?)?$/;
+
+    if (!isoPattern.test(date)) return false;
+
+
+    const parsed = new Date(date);
+    return !isNaN(parsed.getTime());
+}
+
+//events Create a new point-earning event.
+app.post('/events', jwtAuth, requireRole('manager', 'superuser'), async (req, res) => {
+    const {name, description, location, startTime, endTime, capacity, points} = req.body;
+
+    if (name === undefined || name === null || typeof name !== "string" ) {
+        return res.status(400).json({"error": "Invalid name payload"})
+    }
+    if (description === undefined || description === null || typeof description !== "string" ) {
+        return res.status(400).json({"error": "Invalid description payload"})
+    }
+    if (location === undefined || location === null || typeof location !== "string" ) {
+        return res.status(400).json({"error": "Invalid location payload"})
+    }
+    if (!isIsoDate(startTime)){
+        return res.status(400).json({"error": "Invalid startTime payload"})
+    }
+    if (!isIsoDate(endTime) || endTime > startTime){
+        return res.status(400).json({"error": "Invalid endTime payload"})
+    }
+    if (capacity !== undefined && capacity !== null) {
+        if (typeof capacity !== "number" || capacity <= 0 || !Number.isInteger(capacity)){
+            return res.status(400).json({"error": "Invalid capacity payload"})
+        }
+    }
+    if (points === undefined || points === null || typeof points !== "number" || points <= 0 || !Number.isInteger(points)) {
+        return res.status(400).json({"error": "Invalid location payload"})
+    }
+
+    const newEvent = await prisma.event.create({
+        data: {
+            name: name,
+            description: description,
+            location: location,
+            startTime: new Date(startTime),
+            endTime: new Date(endTime),
+            capacity: capacity,
+            pointsRemain: points,
+        }
+    });
+
+    const response = await prisma.event.findUnique({
+        where: {id: newEvent.id},
+        omit: {
+            numGuests: true
+        }
+    });
+
+    return res.status(201).json(response);
+
+});
 
 
 
