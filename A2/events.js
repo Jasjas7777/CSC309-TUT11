@@ -191,6 +191,114 @@ router.get('/:eventId', jwtAuth, async (req, res) => {
     return res.status(200).json(findEvent);
 });
 
+//events/:eventId Update an existing event.
+router.patch('/:eventId', jwtAuth, async (req, res) => {
+    const user = req.user;
+    const eventId = Number.parseInt(req.params['eventId']);
+    if (isNaN(eventId)) {
+        return res.status(404).json({ "error": "invalid eventId" });
+    }
+    const findEvent = await prisma.event.findUnique({where: {id: eventId}});
+    if (!findEvent) {
+        return res.status(404).json({ "error": "event not found" });
+    }
+    const isOrganizer = findEvent.organizers.some(organizer => organizer['id'] === user.id);
+    if (user.role !== 'manager' && user.role !== 'superuser' && !isOrganizer){
+        return res.status(403).json({ "error": "Not authorized to change event" });
+    }
+
+    const {name, description, location, startTime, endTime, capacity, points, published} = req.body;
+    if (name === undefined && description === undefined && location === undefined
+        && startTime === undefined && endTime === undefined && capacity === undefined
+        && points === undefined && published === undefined) {
+        return res.status(400).json({"error": "Invalid empty payload"})
+    } else if (name === null && description === null && location === null
+        && startTime === null && endTime === null && capacity === null
+        && points === null && published === null){
+        return res.status(400).json({"error": "Invalid empty payload"})
+    }
+    if (new Date() > findEvent.startTime){
+        return res.status(400).json({"error": "Cannot update after start"})
+    }
+
+    const data = {};
+    const select = {'id': true, 'name': true, 'location': true};
+    if (name !== undefined && name !== null) {
+        if (typeof name !== "string" ){
+            return res.status(400).json({"error": "Invalid name payload"})
+        }
+        data['name'] = name;
+        select['name'] = true;
+    }
+    if (description !== undefined && description !== null) {
+        if (typeof description !== "string" ){
+            return res.status(400).json({"error": "Invalid description payload"})
+        }
+        data['description'] = description;
+        select['description'] = true;
+    }
+    if (location !== undefined && location !== null) {
+        if (typeof location !== 'string'){
+            return res.status(400).json({"error": "Invalid location"});
+        }
+        data['location'] = location;
+        select['location'] = true;
+    }
+    if (startTime !== undefined && startTime !== null){
+        if (!isIsoDate(startTime)){
+            return res.status(400).json({"error": "Invalid startTime payload"})
+        }
+        data['startTime'] = startTime;
+        select['startTime'] = true;
+    }
+    if (endTime !== undefined && endTime !== null && startTime !== undefined && startTime !== null){
+        if (!isIsoDate(endTime) || new Date(endTime) < new Date(startTime)){
+            return res.status(400).json({"error": "Invalid endTime payload"})
+        }
+        data['endTime'] = endTime;
+        select['endTime'] = true;
+    }
+
+    if (capacity !== undefined && capacity !== null) {
+        if (typeof capacity !== "number" || capacity <= 0 || !Number.isInteger(capacity) || capacity < findEvent.numGuests){
+            return res.status(400).json({"error": "Invalid capacity payload"})
+        }
+        data['capacity'] = capacity;
+        select['capacity'] = true;
+    }
+    if (points !== undefined && points !== null) {
+        if (typeof points !== "number" || points <= 0 || !Number.isInteger(points) || points < findEvent.pointsAwarded){
+            return res.status(400).json({"error": "Invalid points payload"})
+        }
+        if (user.role !== 'manager' && user.role !== 'superuser'){
+            return res.status(403).json({ "error": "Not authorized to change event" });
+        }
+        data['pointsRemain'] = points - findEvent.pointsAwarded;
+        select['pointsRemain'] = true;
+    }
+    if (published !== undefined && published !== null){
+        if (typeof published !== "boolean" || published !== true){
+            return res.status(400).json({"error": "Invalid published payload"})
+        }
+        if (user.role !== 'manager' && user.role !== 'superuser'){
+            return res.status(403).json({ "error": "Not authorized to change event" });
+        }
+        data['published'] = true;
+        select['published'] = true;
+    }
+
+    const updateEvent = await prisma.event.update({
+        where: {id: eventId},
+        data, select,
+    });
+
+    return res.status(200).json(updateEvent);
+
+
+
+
+})
+
 //events/:eventId/organizers Add an organizer to this event.
 router.post('/:eventId/organizers', jwtAuth, requireRole('manager', 'superuser'), async (req, res) => {
     const eventId = Number.parseInt(req.params['eventId']);
