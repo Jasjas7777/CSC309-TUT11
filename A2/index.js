@@ -697,6 +697,34 @@ app.get('/events/', jwtAuth, async (req, res) => {
 })
 
 
+//events/:eventId Retrieve a single event
+app.get('/events/:eventId', jwtAuth, async (req, res) => {
+    const id = Number.parseInt(params['eventId']);
+    if (isNaN(id)){
+        return res.status(404).json({'error': 'invalid event id'});
+    }
+    const omit = {};
+    if (req.user.role === 'regular' || req.user.role === 'cashier'){
+        omit['description'] = true;
+        omit['pointsRemain'] = true;
+        omit['pointsAwarded'] = true;
+        omit['published'] = true;
+        omit['guests'] = true;
+    }
+    if (req.user.role === 'manager' || req.user.role === 'superuser'){
+        omit['description'] = true;
+    }
+    const findEvent = await prisma.event.findUnique({
+        where: {id: id},
+        select: {published: true},
+        omit: omit
+    })
+
+    if (!findEvent) {
+        return res.status(404).json({ "error": "event not found"});
+    }
+    return res.status(200).json(findEvent);
+})
 
 const server = app.listen(port, () => {
     console.log(`Server running on port ${port}`);
