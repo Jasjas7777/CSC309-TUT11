@@ -141,7 +141,7 @@ router.get('/', jwtAuth, async (req, res) => {
         omit['pointsAwarded'] = true;
         omit['published'] = true;
     } else if(req.user.role === 'manager' || req.user.role === 'superuser'){
-        const {published} = req.query.published;
+        const {published} = req.query;
         if (published !== undefined && published !== null){
             if (published === 'true'){
                 where['published'] = true;
