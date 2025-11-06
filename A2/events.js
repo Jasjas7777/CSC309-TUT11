@@ -245,7 +245,7 @@ router.patch('/:eventId', jwtAuth, async (req, res) => {
         select['location'] = true;
     }
     if (startTime !== undefined && startTime !== null){
-        if (!isIsoDate(startTime)){
+        if (!isIsoDate(startTime) || new Date(startTime) < new Date() || new Date(startTime) > findEvent.endTime || new Date() > findEvent.startTime ){
             return res.status(400).json({"error": "Invalid startTime payload"})
         }
         data['startTime'] = startTime;
