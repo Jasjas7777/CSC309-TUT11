@@ -87,12 +87,12 @@ model Event {
   location String
   startTime DateTime
   endTime DateTime
-  capacity Int
+  capacity Int?
   organizers User[] @relation("EventsOrganizers")
   pointsRemain Int
-  pointsAwarded Int
-  published Boolean
+  pointsAwarded Int? @default(0)
+  published Boolean @default(false)
   guests User[] @relation("EventsGuests")
-  numGuests Int
+  numGuests Int @default(0)
 
 }
