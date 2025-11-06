@@ -600,14 +600,101 @@ app.post('/events', jwtAuth, requireRole('manager', 'superuser'), async (req, re
 
     const response = await prisma.event.findUnique({
         where: {id: newEvent.id},
+        include: { organizers: true, guests: true },
         omit: {
             numGuests: true
         }
     });
 
     return res.status(201).json(response);
-
 });
+
+//events Retrieve a list of events
+app.get('/events/', jwtAuth, async (req, res) => {
+    const {name, location, started, ended} = req.query;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const showFull = req.query.showFull || 'false';
+
+    const where = {};
+    if (name !== undefined && name !== null) {
+        if (typeof name !== 'string'){
+            return res.status(400).json({"error": "Invalid name"});
+        }
+        where['name'] = name;
+    }
+
+    if (location !== undefined && location !== null) {
+        if (typeof location !== 'string'){
+            return res.status(400).json({"error": "Invalid location"});
+        }
+        where['location'] = location;
+    }
+
+    if (started !== undefined && started !== null) {
+        if ((started !== 'true' && started !== 'false') || ended !== undefined){
+            return res.status(400).json({"error": "Invalid started"});
+        }
+        let start = false;
+        if (started === 'true') {
+            start = true;
+        } else if (started === 'false') {
+            start = false;
+        }
+        where['startTime'] = start ? { 'lte': new Date() } : {'gt': new Date() };
+    }
+
+    if (ended !== undefined && ended !== null) {
+        if (ended !== 'true' && ended !== 'false'){
+            return res.status(400).json({"error": "Invalid ended"});
+        }
+        let end = false;
+        if (ended === 'true') {
+            end = true;
+        } else if (ended === 'false') {
+            end = false;
+        }
+        where['endTime'] = end ? { 'lte': new Date() } : {'gt': new Date() };
+    }
+
+    if (!Number.isInteger(page) || !Number.isInteger(limit) || page < 1 || limit < 1){
+        return res.status(400).json({"error": "Invalid payload"});
+    }
+
+    if (showFull !== undefined && showFull !== null) {
+        if (showFull !== 'false' && showFull !== true) {
+            return res.status(400).json({"error": "Invalid payload"});
+        }
+        if (showFull === 'false'){
+            where['OR'] = [{'numGuests': { 'lt': prisma.event.fields.capacity }},{'capacity': null} ];
+        }
+    }
+
+    const omit = {'description': true};
+    if (req.user.role === 'regular' || req.user.role === 'cashier') {
+        omit['pointsRemain'] = true;
+        omit['pointsAwarded'] = true;
+        omit['published'] = true;
+    } else if(req.user.role === 'manager' || req.user.role === 'superuser'){
+        const {published} = req.query.published;
+        if (published !== undefined && published !== null){
+            if (published === 'true'){
+                where['published'] = true;
+            } else if (published === 'false'){
+                where['published'] = false;
+            } else {
+                return res.status(400).json({"error": "Invalid payload"});
+            }
+        }
+    }
+
+    const skip = (page - 1) * limit;
+    const findEvent = await prisma.event.findMany({
+        omit, where,skip,take: limit
+    })
+    const count = await prisma.event.count({where});
+    return res.status(200).json({'count': count, 'result': findEvent});
+})
 
 
 
