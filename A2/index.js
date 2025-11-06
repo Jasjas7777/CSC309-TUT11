@@ -574,7 +574,7 @@ app.post('/events', jwtAuth, requireRole('manager', 'superuser'), async (req, re
     if (!isIsoDate(startTime)){
         return res.status(400).json({"error": "Invalid startTime payload"})
     }
-    if (!isIsoDate(endTime) || endTime > startTime){
+    if (!isIsoDate(endTime) || new Date(endTime) < new Date(startTime)){
         return res.status(400).json({"error": "Invalid endTime payload"})
     }
     if (capacity !== undefined && capacity !== null) {
