@@ -646,7 +646,7 @@ router.post('/:eventId/transactions', jwtAuth, async (req, res) => {
         if (!findUser) {
             return res.status(404).json({ "error": "user not found" });
         }
-        const isGuest = findEvent.guests.some(guest => guest['id'] === user.userId);
+        const isGuest = findEvent.guests.some(guest => guest['utorid'] === utorid);
         if (!isGuest){
             return res.status(400).json({ "error": "User is not a guest" });
         }
