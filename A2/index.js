@@ -32,12 +32,14 @@ const SECRET_KEY = process.env.JWT_SECRET;
 const userRoutes = require("./users");
 const eventRoutes = require("./events");
 const transactionRoutes = require("./transaction");
+const promotionRoutes = require("./promotion");
 
 app.use(express.json());
 app.use(cors());
 app.use("/users", userRoutes);
 app.use("/events", eventRoutes);
 app.use("/transactions", transactionRoutes);
+app.use("/promotions", promotionRoutes);
 
 //auth/tokens Authenticate a user and generate a JWT token
 app.post("/auth/tokens", async (req, res) => {
