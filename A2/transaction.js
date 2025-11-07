@@ -202,6 +202,85 @@ router.post('/', jwtAuth, requireRole('cashier', 'manager', 'superuser'), async 
 
 //transactions/get Retrieve a list of transactions
 router.get('/', jwtAuth, requireRole('manager', 'superuser'), async (req, res) => {
+    const {name, createdBy, suspicious, type, operator } = req.query;
+    const { promotionId } = parseInt(req.query);
+    const { relatedId } = parseInt(req.query);
+    const { amount } = parseInt(req.query);
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+
+    const where = {};
+    if (name !== undefined && name !== null) {
+        if (typeof name !== 'string'){
+            return res.status(400).json({"error": "Invalid name"});
+        }
+        where['name'] = name;
+    }
+    if (createdBy !== undefined && createdBy !== null){
+        if (typeof createdBy !== 'string'){
+            return res.status(400).json({"error": "Invalid createdBy"});
+        }
+        where['createdBy'] = createdBy;
+    }
+    if (suspicious !== undefined && suspicious !== null){
+        if (typeof suspicious !== 'boolean' && typeof suspicious !== 'string'){
+            return res.status(400).json({"error": "Invalid suspicious"});
+        }
+        if (suspicious === 'true'|| suspicious === true) {
+            where['suspicious'] = true;
+        } else if (suspicious === 'false' || suspicious === false) {
+            where['suspicious'] = false;
+        } else {
+            return res.status(400).json({"error": "Invalid suspicious"});
+        }
+    }
+    if (promotionId !== undefined && promotionId !== null){
+        if (typeof createdBy !== 'number' || !Number.isInteger(promotionId)){
+            return res.status(400).json({"error": "Invalid promotionId"});
+        }
+        where['promotionId'] = promotionId;
+    }
+    if (type !== undefined && type !== null) {
+        if (typeof type !== 'string'){
+            return res.status(400).json({"error": "Invalid type"});
+        }
+        where['type'] = type;
+    }
+    if (relatedId !== undefined && relatedId !== null){
+        if (typeof createdBy !== 'number' || !Number.isInteger(relatedId)){
+            return res.status(400).json({"error": "Invalid relatedId"});
+        }
+        where['relatedId'] = relatedId;
+    }
+    if (amount !== undefined && amount !== null){
+        if (isNaN(amount) || operator === undefined) {
+            return res.status(400).json({ "error": "invalid amount payload" });
+        }
+        if (operator !== 'get' && operator !== 'lte'){
+            return res.status(400).json({ "error": "invalid operator payload" });
+        }
+        where['amount'] = {operator: amount};
+    }
+
+    if (!Number.isInteger(page) || !Number.isInteger(limit) || page < 1 || limit < 1){
+        return res.status(400).json({"error": "Invalid payload"});
+    }
+
+    const findTransactions = await prisma.transaction.findMany({
+        select: {
+            id: true,
+            utorid: true,
+            amount: true,
+            type:true,
+            spent: true,
+            promotionIds: true,
+            suspicious: true,
+            remark: true,
+            createdBy: true
+        }, where, skip, take: limit
+    });
+    const count = await prisma.transaction.count({where});
+    return res.status(200).json({"count": count, "results": findTransactions});
 
 })
 
