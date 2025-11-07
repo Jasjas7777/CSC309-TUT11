@@ -246,7 +246,7 @@ router.get("/me", jwtAuth, async (req, res) => {
 })
 
 //users/me/password Update the current logged-in user's password
-router.patch("/me/password", jwtAuth, async (req, res)=> {
+router  .patch("/me/password", jwtAuth, async (req, res)=> {
     const user = req.user;
     const oldpwd = req.body.old;
     const newpwd = req.body.new;
