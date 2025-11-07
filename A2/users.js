@@ -413,7 +413,7 @@ router.post('/:userId/transactions', jwtAuth, async (req, res) => {
     if (typeof type !== 'string' || type !== 'transfer'){
         return res.status(400).json({"error": "Invalid type payload"});
     }
-    if (typeof amount !== "number" || !Number.isInteger(amount) || amount > 0){
+    if (typeof amount !== "number" || !Number.isInteger(amount) || amount <= 0){
         return res.status(400).json({"error": "Invalid amount payload"});
     }
     if (remark !== undefined && remark !== null){
@@ -453,5 +453,109 @@ router.post('/:userId/transactions', jwtAuth, async (req, res) => {
         "createdBy": createTransaction1.createdBy
     });
 })
+
+//users/me/transactions  Create a new redemption transaction
+router.post('/me/transactions', jwtAuth, async (req, res) => {
+    const {type, amount, remark} = req.body;
+    const data = {}
+    const user = req.user;
+    if (!user.verified){
+        return res.status(403).json({ "error": "User not verified" });
+    }
+    if (type === undefined || type === null || amount === undefined || amount === null){
+        return res.status(400).json({"error": "Invalid payload"});
+    }
+    if (typeof type !== 'string' || type !== 'redemption'){
+        return res.status(400).json({"error": "Invalid type payload"});
+    }
+    if (typeof amount !== "number" || !Number.isInteger(amount) || amount <= 0){
+        return res.status(400).json({"error": "Invalid amount payload"});
+    }
+    if (remark !== undefined && remark !== null){
+        if (typeof remark !== 'string'){
+            return res.status(400).json({"error": "Invalid remark payload"});
+        }
+        data["remark"] = remark;
+    }
+    if (user.points < amount){
+        return res.status(400).json({"error": "Not enough point"});
+    }
+
+    data['type'] = type;
+    data['amount'] = amount;
+    data['utoridUser'] = { 'connect': {utorid: user.utorid} };
+    data['createdBy'] = user.utorid;
+    data['processed'] = false;
+
+    const createTransaction = await prisma.transaction.create({data});
+    return res.status(201).json({
+        "id": createTransaction.id,
+        "utorid": createTransaction.utorid,
+        "type": createTransaction.type,
+        "processedBy": createTransaction.relatedId,
+        "amount": createTransaction.amount,
+        "remark": createTransaction.remark,
+        "createdBy": createTransaction.createdBy
+    });
+})
+
+///users/me/transactions Retrieve a list of transactions owned by the currently logged in user
+router.post('/me/transactions', jwtAuth, async (req, res) => {
+    const {type, operator} = req.body;
+    const { promotionId } = parseInt(req.query);
+    const { relatedId } = parseInt(req.query);
+    const { amount } = parseInt(req.query);
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const where = {};
+
+    if (type !== undefined && type !== null) {
+        if (typeof type !== 'string'){
+            return res.status(400).json({"error": "Invalid type"});
+        }
+        where['type'] = type;
+    }
+    if (promotionId !== undefined && promotionId !== null){
+        if (typeof createdBy !== 'number' || !Number.isInteger(promotionId)){
+            return res.status(400).json({"error": "Invalid promotionId"});
+        }
+        where['promotionId'] = promotionId;
+    }
+    if (relatedId !== undefined && relatedId !== null){
+        if (typeof createdBy !== 'number' || !Number.isInteger(relatedId)){
+            return res.status(400).json({"error": "Invalid relatedId"});
+        }
+        where['relatedId'] = relatedId;
+    }
+    if (amount !== undefined && amount !== null){
+        if (isNaN(amount) || operator === undefined) {
+            return res.status(400).json({ "error": "invalid amount payload" });
+        }
+        if (operator !== 'get' && operator !== 'lte'){
+            return res.status(400).json({ "error": "invalid operator payload" });
+        }
+        where['amount'] = {operator: amount};
+    }
+    if (!Number.isInteger(page) || !Number.isInteger(limit) || page < 1 || limit < 1){
+        return res.status(400).json({"error": "Invalid payload"});
+    }
+    where['utorid'] = user.utorid;
+
+    const skip = (page - 1) * limit;
+    const findTransactions = await prisma.transaction.findMany({
+        select: {
+            id: true,
+            amount: true,
+            type:true,
+            spent: true,
+            promotionIds: true,
+            remark: true,
+            createdBy: true
+        }, where, skip, take: limit
+    });
+    const count = await prisma.transaction.count({where});
+    return res.status(200).json({"count": count, "results": findTransactions});
+
+    });
 
 module.exports = router;
