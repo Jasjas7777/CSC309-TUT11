@@ -57,11 +57,13 @@ router.post('/', jwtAuth, requireRole('manager', 'superuser'), async (req, res) 
             return res.status(400).json({"error": "Invalid points payload"})
     }}
 
+    const normalizedType = (type === 'one-time') ? 'onetime' : type;
+
     const createPromotion = await prisma.promotion.create({
         data: {
             name: name,
             description: description,
-            type: type,
+            type: normalizedType,
             startTime: new Date(startTime),
             endTime: new Date(endTime),
             minSpending: minSpending,
