@@ -300,7 +300,7 @@ router.get('/:transactionId', jwtAuth, requireRole('manager', 'superuser'), asyn
         rate: true,
         processed: true,
     }
-    const findTransaction = await prisma.transaction.findUnique({where: {id: id}, omit});
+    const findTransaction = await prisma.transaction.findUnique({where: {id: id}, omit, include: {promotionIds: true}});
     if (!findTransaction){
         return res.status(404).json({'error': 'invalid transaction id'});
     }
