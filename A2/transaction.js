@@ -117,24 +117,24 @@ router.post('/', jwtAuth, requireRole('cashier', 'manager', 'superuser'), async 
             if (req.user.suspicious){
                 return res.status(201).json({
                     'id': findTransaction.id,
-                    'utorid': findTransaction.id,
+                    'utorid': findTransaction.utorid,
                     'type': findTransaction.type,
                     "spent": findTransaction.spent,
                     "earned": 0,
                     "remark": findTransaction.remark,
                     "promotionIds": promotionIds,
-                    "createdby": findTransaction.createdBy
+                    "createdBy": findTransaction.createdBy
                 });
             }
             return res.status(201).json({
                 'id': findTransaction.id,
-                'utorid': findTransaction.id,
+                'utorid': findTransaction.utorid,
                 'type': findTransaction.type,
                 "spent": findTransaction.spent,
                 "earned": findTransaction.amount,
                 "remark": findTransaction.remark,
                 "promotionIds": promotionIds,
-                "createdby": findTransaction.createdBy
+                "createdBy": findTransaction.createdBy
             });
         }
 
