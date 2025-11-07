@@ -293,10 +293,25 @@ router.patch('/:eventId', jwtAuth, async (req, res) => {
     });
 
     return res.status(200).json(updateEvent);
+})
 
-
-
-
+//events/:eventId Remove the specified event.
+router.delete('/:eventId', jwtAuth, requireRole('manager','superuser'), async (req, res) => {
+    const eventId = Number.parseInt(req.params['eventId']);
+    if (isNaN(eventId)) {
+        return res.status(404).json({ "error": "invalid eventId" });
+    }
+    const findEvent = await prisma.event.findUnique({where: {id: eventId}, include: {organizers: true}});
+    if (!findEvent) {
+        return res.status(404).json({ "error": "event not found" });
+    }
+    if (findEvent.published === 'true' || findEvent.published === true){
+        return res.status(400).json({ "error": "event already published" });
+    }
+    const updateEvent = await prisma.event.delete({
+        where: {id: eventId},
+    });
+    return res.status(204).send();
 })
 
 //events/:eventId/organizers Add an organizer to this event.
@@ -369,19 +384,15 @@ router.delete('/:eventId/organizers/:userId', jwtAuth, requireRole('manager', 's
         return res.status(404).json({ "error": "invalid userId" });
     }
 
-    const findEvent = await prisma.event.findUnique({where: {id: eventId}});
+    const findEvent = await prisma.event.findUnique({where: {id: eventId}, include: {organizers: true}});
     if (!findEvent){
         return res.status(404).json({ "error": "Event not found" });
     }
 
     let found = false
-    for (const organizer in findEvent.organizers){
-        if (organizer.utorid === utorid){
-            found = true;
-        }
-    }
-    if (found === false){
-        return res.status(404).json({ "error": "invalid organizer utorid" });
+    const findOrganizer = findEvent.organizers.some(organizer => organizer['id'] === userId);
+    if (!findOrganizer) {
+        return res.status(404).json({ "error": "invalid userId" });
     }
 
     const updateEvent = await prisma.event.update({
