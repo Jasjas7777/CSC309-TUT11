@@ -600,5 +600,127 @@ router.delete('/:eventId/guests/:userId', jwtAuth, requireRole('manager', 'super
     return res.status(204).send();
 });
 
+//events/:eventId/transactions Create a new reward transaction
+router.post('/:eventId/transactions', jwtAuth, async (req, res) => {
+    const eventId = Number.parseInt(req.params['eventId']);
+    if (isNaN(eventId)) {
+        return res.status(404).json({ "error": "invalid eventId" });
+    }
+    const findEvent = await prisma.event.findUnique({where: {id: eventId}});
+    if (!findEvent){
+        return res.status(404).json({ "error": "Event not found" });
+    }
+
+    const {type, utorid, amount, remark} = req.body;
+    if (type === undefined || type === null || amount === undefined || amount === null){
+        return res.status(400).json({ "error": "Invalid payload" });
+    }
+    if (typeof type !== 'string' || type !== 'event'){
+        return res.status(400).json({ "error": "Invalid type payload" });
+    }
+    if (utorid !== undefined && utorid !== null){
+        if (typeof utorid !== "string"){
+            return res.status(400).json({ "error": "Invalid utorid payload" });
+        }
+    }
+    if (typeof amount !== 'number' || amount <= 0 || !Number.isInteger(amount)){
+        return res.status(400).json({ "error": "Invalid amount payload" });
+    }
+    if (remark !== undefined && remark !== null){
+        if (typeof remark !== "string"){
+            return res.status(400).json({ "error": "Invalid remark payload" });
+        }
+    }
+
+    const user = req.user;
+    const isOrganizer = findEvent.organizers.some(organizer => organizer['id'] === user.id);
+    if (user.role !== 'manager' && user.role !== 'superuser' && !isOrganizer){
+        return res.status(403).json({ "error": "Not authorized to create transaction" });
+    }
+
+    if (findEvent.pointsRemain < amount){
+        return res.status(400).json({ "error": "Points not enough" });
+    }
+    if (utorid !== undefined && utorid !== null){
+        const findUser = await prisma.user.findUnique({where: {utorid: utorid}});
+        if (!findUser) {
+            return res.status(404).json({ "error": "user not found" });
+        }
+        const isGuest = findEvent.guests.some(guest => guest['id'] === user.userId);
+        if (!isGuest){
+            return res.status(400).json({ "error": "User is not a guest" });
+        }
+        const updateUser = await prisma.user.update({
+            where: {utorid: utorid},
+            data: {points: findUser.points + amount}
+        });
+        const updateEvent = await prisma.event.update({
+            where: {id: eventId},
+            data: {pointsAwarded: findEvent.pointsAwarded + amount,
+                    pointsRemain:findEvent.pointsRemain - amount }
+        })
+        const createTransaction = await prisma.transaction.create({
+            data: {
+                utoridUser: {
+                    connect: {
+                        utorid: utorid,
+                    }
+                },
+                type: type,
+                createdBy: user.utorid,
+                relatedId: eventId,
+                amount: amount,
+                remark: remark,
+            }
+        });
+        return res.status(201).json({
+            "id": createTransaction.id,
+            "recipient": findUser.name,
+            "awarded": amount,
+            "type": 'event',
+            "relatedId": createTransaction.relatedId,
+            "createdBy": createTransaction.createdBy,
+        })
+    } else {
+        if (findEvent.pointsRemain < (amount * findEvent.numGuests)){
+            return res.status(400).json({ "error": "Points not enough" });
+        }
+        const response = {};
+        for (const guest of findEvent.guests){
+            const updateUser = await prisma.user.update({
+                where: {utorid: guest.utorid},
+                data: {points: guest.points + amount}
+            });
+            const updateEvent = await prisma.event.update({
+                where: {id: eventId},
+                data: {pointsAwarded: findEvent.pointsAwarded + amount,
+                    pointsRemain:findEvent.pointsRemain - amount }
+            });
+            const createTransaction = await prisma.transaction.create({
+                data: {
+                    utoridUser: {
+                        connect: {
+                            utorid: guest.utorid,
+                        }
+                    },
+                    type: type,
+                    createdBy: user.utorid,
+                    relatedId: eventId,
+                    amount: amount,
+                    remark: remark,
+                }
+            });
+            response.push({
+                "id": createTransaction.id,
+                "recipient": guest.name,
+                "awarded": amount,
+                "type": 'event',
+                "relatedId": createTransaction.relatedId,
+                "createdBy": createTransaction.createdBy,
+            })
+        }
+        return res.status(201).json(response);
+    }
+})
 
 module.exports = router;
