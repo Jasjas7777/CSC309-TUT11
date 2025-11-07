@@ -163,6 +163,9 @@ router.post('/', jwtAuth, requireRole('cashier', 'manager', 'superuser'), async 
                 data: {points: findUser.points + amount}
             })
             const newTransaction = await prisma.transaction.create({data});
+            if (promotionIds !== undefined && promotionIds !== null && !Array.isArray(promotionIds)) {
+                return res.status(400).json({ error: "Invalid promotionIds payload" });
+            }
             if (promotionIds !== null){
                 for (const promoId of promotionIds){
                     let updatePromotion = await prisma.promotion.update({
@@ -194,7 +197,7 @@ router.post('/', jwtAuth, requireRole('cashier', 'manager', 'superuser'), async 
                 "amount": findTransaction.amount,
                 "relatedId": relatedId,
                 "remark": findTransaction.remark,
-                "promotionIds": promotionIds,
+                "promotionIds": findTransaction.promotionIds,
                 "createdBy": findTransaction.createdBy
             });
         } else {
@@ -284,7 +287,9 @@ router.get('/', jwtAuth, requireRole('manager', 'superuser'), async (req, res) =
     });
     const count = await prisma.transaction.count({where});
     return res.status(200).json({"count": count, "results": findTransactions});
+});
 
-})
+//transactions/:transactionId
+
 
 module.exports = router;
