@@ -290,6 +290,21 @@ router.get('/', jwtAuth, requireRole('manager', 'superuser'), async (req, res) =
 });
 
 //transactions/:transactionId
-
+router.get('/:transactionId', jwtAuth, requireRole('manager', 'superuser'), async (req, res) => {
+    const id = Number.parseInt(req.params['transactionId']);
+    if (isNaN(id)){
+        return res.status(400).json({'error': 'invalid transaction id'});
+    }
+    const omit = {
+        utoridUser: true,
+        rate: true,
+        processed: true,
+    }
+    const findTransaction = await prisma.transaction.findUnique({where: {id: id}, omit});
+    if (!findTransaction){
+        return res.status(404).json({'error': 'invalid transaction id'});
+    }
+    return res.status(200).json(findTransaction);
+})
 
 module.exports = router;
