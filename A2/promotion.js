@@ -38,32 +38,22 @@ router.post('/', jwtAuth, requireRole('manager', 'superuser'), async (req, res) 
     if (type !== 'automatic' && type !== 'one-time'){
         return res.status(400).json({"error": "Invalid type"});
     }
-    if (!isIsoDate(startTime)){
-        return res.status(400).json({"error": "Invalid startTime payload"})
-    }
-    if (!isIsoDate(endTime) || new Date(endTime) < new Date(startTime)){
-        return res.status(400).json({"error": "Invalid endTime payload"})
-    }
-    if (minSpending !== undefined && minSpending !== null){
-        if (typeof minSpending !== 'number' || minSpending <= 0){
+
+    if (minSpending !== null){
+        if ( minSpending <= 0){
             return res.status(400).json({"error": "Invalid minSpending payload"})
 
         }
     }
-    if (rate !== undefined && rate !== null){
-        if (typeof rate !== 'number' || rate <= 0){
+    if (rate !== null){
+        if (rate <= 0){
             return res.status(400).json({"error": "Invalid rate payload"})
 
         }
     }
-    if (minSpending !== undefined && minSpending !== null){
-        if (typeof minSpending !== 'number' || minSpending <= 0){
-            return res.status(400).json({"error": "Invalid minSpending payload"})
 
-        }
-    }
     if( points !== undefined && points !== null){
-        if (typeof points !== "number" || points <= 0 || !Number.isInteger(points)) {
+        if ( points <= 0 ) {
             return res.status(400).json({"error": "Invalid points payload"})
     }}
 
@@ -72,8 +62,8 @@ router.post('/', jwtAuth, requireRole('manager', 'superuser'), async (req, res) 
             name: name,
             description: description,
             type: type,
-            startTime: startTime,
-            endTime: endTime,
+            startTime: new Date(startTime),
+            endTime: new Date(endTime),
             minSpending: minSpending,
             rate: rate,
             points: points
