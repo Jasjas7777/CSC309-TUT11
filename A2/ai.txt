@@ -1,0 +1,5 @@
+I used Chatgpt for
+1. Understand API endpoint, compare the differences
+2. Understand how clearance middleware works
+3. Debug, find some minor mistakes that I overlook
+4. Improve code structure and seperation of concern

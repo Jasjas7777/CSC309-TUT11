@@ -183,6 +183,109 @@ router.get('/:promotionId', jwtAuth, async (req, res) => {
     return res.status(200).json(findPromotion)
 })
 
+//promotions/:promotionId
+router.patch('/:promotionId', jwtAuth, requireRole('manager', 'superuser') ,async (req, res) => {
+    const id = Number.parseInt(req.params['promotionId']);
+    if (isNaN(id)){
+        return res.status(404).json({'error': 'invalid promotion id'});
+    }
+    const findPromotion = await prisma.promotion.findUnique({ where: { id: id }});
+    if (!findPromotion) {
+        return res.status(404).json({ "error": "promotion not found"});
+    }
+    const user = req.user;
+    const { name, description, type, startTime, endTime } = req.body;
+    const minSpending = req.body.minSpending || null;
+    const rate = req.body.rate || null;
+    const points = req.body.points || 0;
+    const data = {};
+    const select = {'id': true, 'name': true, 'type': true};
+
+    if (name !== undefined && name !== null) {
+        if (typeof name !== 'string' || new Date() > findPromotion.startTime){
+            return res.status(400).json({"error": "Invalid name"});
+        }
+        data['name'] = name;
+    }
+
+    if (description !== undefined && description !== null) {
+        if (typeof description !== 'string' || new Date() > findPromotion.startTime){
+            return res.status(400).json({"error": "Invalid description"});
+        }
+        data['description'] = description;
+    }
+    if (type !== undefined && type !== null) {
+        if (type !== 'automatic' && type !== 'one-time' || new Date() > findPromotion.startTime) {
+            return res.status(400).json({"error": "Invalid type"});
+        }
+        data['type'] = type;
+    }
+    if (startTime !== undefined && startTime !== null) {
+        if (!isIsoDate(startTime) ||isNaN(Date.parse(startTime))
+        || new Date(startTime) < new Date() || new Date() > findPromotion.startTime
+        || new Date(startTime) > findPromotion.endTime){
+            return res.status(400).json({"error": "Invalid startTime payload"})
+        }
+        data['startTime'] = startTime;
+        select['startTime'] = true;
+    }
+
+    if (endTime !== undefined && endTime !== null) {
+        if (!isIsoDate(endTime) ||isNaN(Date.parse(endTime))
+            || new Date(endTime)  <new Date() || new Date() > findPromotion.endTime
+            || new Date(startTime) > findPromotion.endTime){
+            return res.status(400).json({"error": "Invalid startTime payload"})
+        }
+        data['startTime'] = startTime;
+        select['startTime'] = true;
+    }
+
+    if (minSpending !== undefined && minSpending !== null){
+        if (typeof minSpending !== 'number' || minSpending <= 0 || new Date() > findPromotion.startTime){
+            return res.status(400).json({"error": "Invalid minSpending payload"})
+        }
+        data['minSpending'] = minSpending;
+        select['minSpending'] = true;
+    }
+    if (rate !== undefined && rate !== null || new Date() > findPromotion.startTime){
+        if (typeof rate !== 'number' || rate <= 0){
+            return res.status(400).json({"error": "Invalid rate payload"})
+        }
+        data['rate'] = rate;
+        select['rate'] = true;
+    }
+
+    if( points !== undefined && points !== null || new Date() > findPromotion.startTime){
+        if (typeof points !== "number" || points <= 0 || !Number.isInteger(points)) {
+            return res.status(400).json({"error": "Invalid points payload"})
+        }
+        data['points'] = points;
+        select['points'] = true;
+    }
+    const updatedPromotion = await prisma.promotion.update({ where: { id: id },
+        select, data
+    });
+
+    return res.status(200).json(updatedPromotion);
+});
+
+//delete
+router.patch('/:promotionId', jwtAuth, requireRole('manager', 'superuser') ,async (req, res) => {
+    const id = Number.parseInt(req.params['promotionId']);
+    if (isNaN(id)){
+        return res.status(404).json({'error': 'invalid promotion id'});
+    }
+    const findPromotion = await prisma.promotion.findUnique({ where: { id: id }});
+    if (!findPromotion) {
+        return res.status(404).json({ "error": "promotion not found"});
+    }
+    if (new Date() > findPromotion.startTime) {
+        return res.status(403).json({ "error": "promotion  already started"});
+    }
+
+    const deletePromotion = await prisma.promotion.delete({ where: { id: id } });
+    return res.status(204).send();
+})
 
 
 module.exports = router;
