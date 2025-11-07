@@ -171,14 +171,13 @@ router.get('/:eventId', jwtAuth, async (req, res) => {
     }
     const omit = {};
     if (req.user.role === 'regular' || req.user.role === 'cashier'){
-        omit['description'] = true;
         omit['pointsRemain'] = true;
         omit['pointsAwarded'] = true;
         omit['published'] = true;
         omit['guests'] = true;
     }
     if (req.user.role === 'manager' || req.user.role === 'superuser'){
-        omit['description'] = true;
+        omit['numGuests'] = true;
     }
     const findEvent = await prisma.event.findUnique({
         where: {id: id},
