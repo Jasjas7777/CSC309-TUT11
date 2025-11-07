@@ -389,4 +389,69 @@ router.patch('/:userId', jwtAuth, requireRole( "manager","superuser"), async (re
     return res.status(200).json(updateUser);
 });
 
+//users/:userId/transactions Create a new transfer transaction between the current logged-in user (sender) and the user specified by userId (the recipient)
+router.post('/:userId/transactions', jwtAuth, async (req, res) => {
+    const {type, amount, remark} = req.body;
+    const data = {}
+
+    const recipient_userId = Number.parseInt(req.params['userId']);
+    if (isNaN(recipient_userId)) {
+        return res.status(404).json({'error': 'Invalid userId'});
+    }
+    const findRecipient = await prisma.user.findUnique({ where: {id: recipient_userId}});
+    if (!findRecipient){
+        return res.status(404).json({'error': 'Invalid userId'});
+    }
+
+    const user = req.user;
+    if (!user.verified){
+        return res.status(403).json({ "error": "User not verified" });
+    }
+    if (type === undefined || type === null || amount === undefined || amount === null){
+        return res.status(400).json({"error": "Invalid payload"});
+    }
+    if (typeof type !== 'string' || type !== 'transfer'){
+        return res.status(400).json({"error": "Invalid type payload"});
+    }
+    if (typeof amount !== "number" || !Number.isInteger(amount) || amount > 0){
+        return res.status(400).json({"error": "Invalid amount payload"});
+    }
+    if (remark !== undefined && remark !== null){
+        if (typeof remark !== 'string'){
+            return res.status(400).json({"error": "Invalid remark payload"});
+        }
+        data["remark"] = remark;
+    }
+    data['type'] = type;
+    data['amount'] = amount;
+    data['utoridUser'] = { 'connect': {utorid: user.utorid} };
+    data['createdBy'] = user.utorid;
+    data['relatedId'] = findRecipient.id;
+
+    const findUser = await prisma.user.findUnique({where: {id: user.id}});
+    if (findUser.points < amount){
+        return res.status(400).json({"error": "Not enough point"});
+    }
+
+    const createTransaction1 = await prisma.transaction.create({data});
+    const addPoint = await prisma.user.update({ where: { utorid: findRecipient.utorid },
+        data: { points: findRecipient.points + amount }});
+    const deductPoint = await prisma.user.update({ where: { utorid: user.utorid },
+        data: { points: user.points - amount }});
+
+    data['relatedId'] = user.id;
+    data['utoridUser'] = { 'connect': {utorid: findRecipient.utorid} };
+    const createTransaction2 = await prisma.transaction.create({data});
+
+    return res.status(201).json({
+        "id": createTransaction1.id,
+        "sender": createTransaction1.utorid,
+        "recipient": createTransaction2.utorid,
+        "type": createTransaction1.type,
+        "sent": createTransaction1.amount,
+        "remark": createTransaction1.remark,
+        "createdBy": createTransaction1.createdBy
+    });
+})
+
 module.exports = router;
