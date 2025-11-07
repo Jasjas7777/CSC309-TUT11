@@ -165,7 +165,7 @@ router.get('/', jwtAuth, async (req, res) => {
 
 //events/:eventId Retrieve a single event
 router.get('/:eventId', jwtAuth, async (req, res) => {
-    const id = Number.parseInt(params['eventId']);
+    const id = Number.parseInt(req.params['eventId']);
     if (isNaN(id)){
         return res.status(404).json({'error': 'invalid event id'});
     }
