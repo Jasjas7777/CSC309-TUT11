@@ -51,6 +51,9 @@ router.post('/', jwtAuth, requireRole('manager', 'superuser'), async (req, res) 
 
         }
     }
+    if (new Date(endTime) <= new Date(startTime)) {
+        return res.status(400).json({ "error": "endTime must be after startTime" });
+    }
 
     if( points !== undefined && points !== null){
         if ( points < 0 ) {
