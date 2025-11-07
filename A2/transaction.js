@@ -319,11 +319,7 @@ router.patch('/:transactionId/suspicious', jwtAuth,requireRole('manager', 'super
         if (typeof suspicious !== 'boolean' && typeof suspicious !== 'string'){
             return res.status(400).json({"error": "Invalid suspicious"});
         }
-        if (suspicious === 'true'|| suspicious === true) {
-            where['suspicious'] = true;
-        } else if (suspicious === 'false' || suspicious === false) {
-            where['suspicious'] = false;
-        } else {
+        if (suspicious !== 'true' && suspicious !== true) {
             return res.status(400).json({"error": "Invalid suspicious"});
         }
     }
