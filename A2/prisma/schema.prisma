@@ -55,7 +55,7 @@ model Transaction {
   utorid String @unique
   utoridUser User @relation(fields: [utorid], references: [utorid])
   type String
-  spent Float
+  spent Float?
   rate Float?
   promotionIds Promotion[] @relation("PromotionsTransactions")
   remark String?
@@ -63,7 +63,7 @@ model Transaction {
   amount Int
   relatedId Int?
   suspicious Boolean @default(false)
-  processed Boolean
+  processed Boolean?
 }
 
 model Promotion {
