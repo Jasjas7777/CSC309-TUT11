@@ -88,7 +88,7 @@ router.post('/', jwtAuth, requireRole('manager', 'superuser'), async (req, res) 
             })
         }
     }
-    return res.status(200).json(createPromotion);
+    return res.status(201).json(createPromotion);
 });
 
 router.get('/', jwtAuth, async (req, res) => {
@@ -151,7 +151,7 @@ router.get('/', jwtAuth, async (req, res) => {
     const findPromotions = await prisma.promotion.findMany({
         where, omit, skip, take: limit
     })
-    const count = await prisma.transaction.count({where});
+    const count = await prisma.promotion.count({where});
     return res.status(200).json({"count": count, "results": findPromotions});
 })
 

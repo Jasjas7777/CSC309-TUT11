@@ -134,6 +134,9 @@ router.get('/', jwtAuth, async (req, res) => {
             where['OR'] = [{'numGuests': { 'lt': prisma.event.fields.capacity }},{'capacity': null} ];
         }
     }
+    else {
+        where['OR'] = [{'numGuests': { 'lt': prisma.event.fields.capacity }},{'capacity': null} ];
+    }
 
     const omit = {'description': true};
     if (req.user.role === 'regular' || req.user.role === 'cashier') {
@@ -273,7 +276,12 @@ router.patch('/:eventId', jwtAuth, async (req, res) => {
         if (user.role !== 'manager' && user.role !== 'superuser'){
             return res.status(403).json({ "error": "Not authorized to change event" });
         }
-        data['pointsRemain'] = points - findEvent.pointsAwarded;
+        const awarded = findEvent.pointsAwarded || 0;
+
+        if (points < awarded) {
+            return res.status(400).json({ "error": "Invalid points payload" });
+        }
+        data['pointsRemain'] = points - awarded;
         select['pointsRemain'] = true;
     }
     if (published !== undefined && published !== null){

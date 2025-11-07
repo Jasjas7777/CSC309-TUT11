@@ -203,9 +203,9 @@ router.patch("/me", jwtAuth, upload.single('avatar'), async (req, res) => {
         }
         const [year, month, day] = birthday.split("-").map(Number);
         const now = new Date();
-        if (year > now.getFullYear() || month < 1 || month > 12 || day < 1 || day > 31
-            || (month === 2 && day > 28)) {
-            return res.status(400).json({"error": "Invalid birthday"})
+        if (isNaN(date.getTime()) || date.getUTCFullYear() !== year ||
+            date.getUTCMonth() + 1 !== month || date.getUTCDate() !== day) {
+            return res.status(400).json({ "error": "Invalid birthday" });
         }
         data['birthday'] = new Date(birthday);
     }
