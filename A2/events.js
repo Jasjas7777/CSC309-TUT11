@@ -590,7 +590,7 @@ router.delete('/:eventId/guests/me', jwtAuth, async (req, res) => {
         data: {
             guests: {
                 disconnect: {
-                    utorid: user.utorid,
+                    id: user.id,
                 }
             },
             numGuests: newNumGuests,
