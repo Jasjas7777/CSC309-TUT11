@@ -606,7 +606,7 @@ router.post('/:eventId/transactions', jwtAuth, async (req, res) => {
     if (isNaN(eventId)) {
         return res.status(404).json({ "error": "invalid eventId" });
     }
-    const findEvent = await prisma.event.findUnique({where: {id: eventId}});
+    const findEvent = await prisma.event.findUnique({where: {id: eventId}, include: {organizers: true, guests: true}});
     if (!findEvent){
         return res.status(404).json({ "error": "Event not found" });
     }
