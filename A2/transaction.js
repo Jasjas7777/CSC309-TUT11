@@ -94,15 +94,17 @@ router.post('/', jwtAuth, requireRole('cashier', 'manager', 'superuser'), async 
             data['amount'] = pointsAwarded;
 
             const createTransaction = await prisma.transaction.create({data});
-            for (const promoId of promotionIds){
-                let updatePromotion = await prisma.promotion.update({
-                    where: {id: promoId},
-                    data: {users: {disconnect: {utorid: utorid}},
+            if (promotionIds !== null){
+                for (const promoId of promotionIds){
+                    let updatePromotion = await prisma.promotion.update({
+                        where: {id: promoId},
+                        data: {users: {disconnect: {utorid: utorid}},
                             transactions: {connect: {id: createTransaction.id}}
-                    }
-                });
-
+                        }
+                    });
+                }
             }
+
             const findTransaction = await prisma.transaction.findUnique({
                 where: {id: createTransaction.id},
                 select: {
@@ -266,6 +268,7 @@ router.get('/', jwtAuth, requireRole('manager', 'superuser'), async (req, res) =
         return res.status(400).json({"error": "Invalid payload"});
     }
 
+    const skip = (page - 1) * limit;
     const findTransactions = await prisma.transaction.findMany({
         select: {
             id: true,
