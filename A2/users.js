@@ -500,7 +500,7 @@ router.post('/me/transactions', jwtAuth, async (req, res) => {
 })
 
 ///users/me/transactions Retrieve a list of transactions owned by the currently logged in user
-router.post('/me/transactions', jwtAuth, async (req, res) => {
+router.get('/me/transactions', jwtAuth, async (req, res) => {
     const {type, operator} = req.body;
     const { promotionId } = parseInt(req.query);
     const { relatedId } = parseInt(req.query);
