@@ -316,7 +316,7 @@ router.post('/:eventId/organizers', jwtAuth, requireRole('manager', 'superuser')
         return res.status(404).json({ "error": "user not found" });
     }
 
-    const findEvent = await prisma.event.findUnique({where: {id: eventId}});
+    const findEvent = await prisma.event.findUnique({where: {id: eventId}, include{guests: true}});
     if (!findEvent) {
         return res.status(404).json({ "error": "event not found" });
     }
@@ -358,7 +358,7 @@ router.post('/:eventId/organizers', jwtAuth, requireRole('manager', 'superuser')
     return res.status(201).json(getUpdatedEvent);
 })
 
-//events/:eventId/organizers/:userId
+//events/:eventId/organizers/:userId Remove an organizer from this event.
 router.delete('/:eventId/organizers/:userId', jwtAuth, requireRole('manager', 'superuser'), async (req, res) => {
     const userId = Number.parseInt(req.params['userId']);
     const eventId = Number.parseInt(req.params['eventId']);
