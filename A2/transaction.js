@@ -351,7 +351,7 @@ router.patch('/:transactionId/suspicious', jwtAuth,requireRole('manager', 'super
         })
     }
 
-    const updateTransaction = await prisma.transaction.update({ where: { id: transactionId },
+    const updateTransaction = await prisma.transaction.update({ where: { id: id },
         omit,
         data: { suspicious: suspicious }
     });
