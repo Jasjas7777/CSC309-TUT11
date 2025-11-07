@@ -4,6 +4,7 @@ const app = express();
 const jwtAuth = require("./middlewares/jwtAuth");
 const requireRole = require("./middlewares/requireRole");
 const { PrismaClient } = require('@prisma/client');
+const e = require("express");
 const prisma = new PrismaClient();
 const router = express.Router();
 
@@ -514,5 +515,88 @@ router.delete('/:eventId/guests/:userId', jwtAuth, requireRole('manager', 'super
     return res.status(204).send();
 });
 
+//events/:eventId/guests/me Add the logged-in user to the event
+router.post('/:eventId/guests/me', jwtAuth, async (req, res) => {
+    const user = req.user;
+    const eventId = Number.parseInt(req.params['eventId']);
+    if (isNaN(eventId)) {
+        return res.status(404).json({ "error": "invalid eventId" });
+    }
+    const findEvent = await prisma.event.findUnique({where: {id: eventId}, include:{guests: true, organizers: true}});
+    if (!findEvent){
+        return res.status(404).json({ "error": "Event not found" });
+    }
+    const isGuest = findEvent.guests.some(guest => guest['id'] === user.userId);
+    if (isGuest){
+        return res.status(400).json({ "error": "User is already a guest" });
+    }
+    if (findEvent.capacity === findEvent.numGuests){
+        return res.status(400).json({ "error": "Event is full" });
+    }
+    if (findEvent.endTime < new Date()){
+        return res.status(410).json({ "error": "event ended" });
+    }
+    const isOrganizer = findEvent.organizers.some(organizer => organizer['id'] === user.id);
+    if (isOrganizer){
+        return res.status(400).json({ "error": "User is already an organizer" });
+    }
+
+    const newNumGuests = findEvent.numGuests + 1;
+    const updateEvent = await prisma.event.update({
+        where: {id: eventId},
+        data: {
+            guests: {
+                connect: {
+                    utorid: user.utorid,
+                }
+            },
+            numGuests: newNumGuests,
+        }
+    });
+
+    return res.status(201).json({
+        "id": eventId,
+        'name': updateEvent.name,
+        'location': updateEvent.location,
+        'guestAdded': {
+            'id': user.id,
+            'utorid': user.utorid,
+            'name': user.name,
+        },
+        'numGuests': updateEvent.numGuests,
+    });
+});
+
+//events/:eventId/guests/me Delete the logged-in user from this event
+router.delete('/:eventId/guests/me', jwtAuth, async (req, res) => {
+    const user = req.user;
+    const eventId = Number.parseInt(req.params['eventId']);
+    if (isNaN(eventId)) {
+        return res.status(404).json({ "error": "invalid eventId" });
+    }
+    const findEvent = await prisma.event.findUnique({where: {id: eventId}, include: {guests: true}});
+    if (!findEvent){
+        return res.status(404).json({ "error": "Event not found" });
+    }
+    const isGuest = findEvent.guests.some(guest => guest['id'] === user.userId);
+    if (!isGuest){
+        return res.status(404).json({ "error": "User is not a guest" });
+    }
+    if (findEvent.endTime < new Date()){
+        return res.status(410).json({ "error": "event ended" });
+    }
+    const newNumGuests = findEvent.numGuests - 1;
+    const updateEvent = await prisma.event.delete({
+        where: {id: eventId},
+        data: {
+            guests: {
+                disconnect: {
+                    utorid: user.utorid,
+                }
+            },
+            numGuests: newNumGuests,
+        }
+    });
+})
 
 module.exports = router;
