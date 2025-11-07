@@ -52,7 +52,7 @@ model User {
 
 model Transaction {
   id Int @id @default(autoincrement())
-  utorid String @unique
+  utorid String
   utoridUser User @relation(fields: [utorid], references: [utorid])
   type String
   spent Float?
