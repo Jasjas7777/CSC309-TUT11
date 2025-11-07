@@ -126,7 +126,6 @@ router.post('/', jwtAuth, requireRole('cashier', 'manager', 'superuser'), async 
                     "createdby": findTransaction.createdBy
                 });
             }
-        }
             return res.status(201).json({
                 'id': findTransaction.id,
                 'utorid': findTransaction.id,
@@ -136,7 +135,9 @@ router.post('/', jwtAuth, requireRole('cashier', 'manager', 'superuser'), async 
                 "remark": findTransaction.remark,
                 "promotionIds": promotionIds,
                 "createdby": findTransaction.createdBy
-        });
+            });
+        }
+
     }
 })
 
