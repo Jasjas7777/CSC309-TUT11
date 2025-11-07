@@ -126,7 +126,7 @@ router.post('/', jwtAuth, requireRole('cashier', 'manager', 'superuser'), async 
                     "spent": findTransaction.spent,
                     "earned": 0,
                     "remark": findTransaction.remark,
-                    "promotionIds": promotionIds,
+                    "promotionIds": findTransaction.promotionIds,
                     "createdBy": findTransaction.createdBy
                 });
             }
@@ -137,7 +137,7 @@ router.post('/', jwtAuth, requireRole('cashier', 'manager', 'superuser'), async 
                 "spent": findTransaction.spent,
                 "earned": findTransaction.amount,
                 "remark": findTransaction.remark,
-                "promotionIds": promotionIds,
+                "promotionIds": findTransaction.promotionIds,
                 "createdBy": findTransaction.createdBy
             });
         }
