@@ -357,6 +357,61 @@ router.patch('/:transactionId/suspicious', jwtAuth,requireRole('manager', 'super
         include : {promotionIds: true},
     });
     return res.status(200).json(updateTransaction);
+});
+
+//transactions/:transactionId/processed
+router.patch('/:transactionId/processed', jwtAuth, requireRole('cashier', 'manager', 'superuser'), async (req, res) => {
+    const id = Number.parseInt(req.params['transactionId']);
+    if (isNaN(id)){
+        return res.status(400).json({'error': 'invalid transaction id'});
+    }
+
+    const {processed} = req.body;
+    if (typeof processed !== 'boolean') {
+        return res.status(400).json({ "error": "invalid payload" });
+    }
+    else if (!processed) {
+        return res.status(400).json({ "error": "invalid payload" });
+    }
+
+    const findTransaction = await prisma.transaction.findUnique({ where: { id: id },
+        select: { id: true, utorid: true, type: true, spent: true, amount: true,
+            promotionIds: true, suspicious: true, remark: true, createdBy: true, processed: true}});
+    if (!findTransaction){
+        return res.status(404).json({ "error": "transaction not found"});
+    }
+    if (findTransaction.processed){
+        return res.status(400).json({ "error": "transaction already processed" });
+    }
+    if (findTransaction.type !== 'redemption'){
+        return res.status(400).json({ "error": "transaction not redemption" });
+    }
+
+    const findUser = await prisma.user.findUnique({where: {utorid: findTransaction.utorid}});
+    if (!findUser) {
+        return res.status(404).json({ "error": "user does not exist"});
+    }
+
+    const deductPoints = await prisma.user.update({ where: { utorid: findTransaction.utorid },
+        data: {
+            points: findUser.points - findTransaction.amount
+        } });
+
+    const updateTransaction = await prisma.transaction.update({ where: { id: id },
+        select: { id: true, utorid: true, type: true, amount: true, remark: true, createdBy: true,
+            relatedId: true
+        },
+        data: { processed: true, relatedId: req.user.id }});
+
+    return res.status(200).json({
+        "id": updateTransaction.id,
+        "utorid": updateTransaction.utorid,
+        "type": updateTransaction.type,
+        "processedBy": req.user.utorid,
+        "redeemed": updateTransaction.amount,
+        "remark": updateTransaction.remark,
+        "createdBy": updateTransaction.createdBy
+    });
 })
 
 module.exports = router;
