@@ -685,7 +685,7 @@ router.post('/:eventId/transactions', jwtAuth, async (req, res) => {
         if (findEvent.pointsRemain < (amount * findEvent.numGuests)){
             return res.status(400).json({ "error": "Points not enough" });
         }
-        const response = {};
+        const response = [];
         for (const guest of findEvent.guests){
             const updateUser = await prisma.user.update({
                 where: {utorid: guest.utorid},
