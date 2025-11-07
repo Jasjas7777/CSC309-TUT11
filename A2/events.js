@@ -323,10 +323,9 @@ router.post('/:eventId/organizers', jwtAuth, requireRole('manager', 'superuser')
     if (findEvent.endTime < new Date()){
         return res.status(410).json({ "error": "event ended" });
     }
-    for (const guest in findEvent.guests){
-        if (guest.utorid === utorid){
-            return res.status(400).json({ "error": "organizer cannot be registered as a guest"});
-        }
+    const isGuest = findEvent.guests.some(guest => guest['utorid'] === utorid);
+    if (isGuest){
+        return res.status(400).json({"error": "Guest cannot be organizer"})
     }
 
     const addOrganizer = await prisma.event.update({
@@ -461,7 +460,7 @@ router.post('/:eventId/guests', jwtAuth, async (req, res) => {
         "id": getUpdatedEvent.id,
         "name": getUpdatedEvent.name,
         "location": getUpdatedEvent.location,
-        "guestsAdded" : {
+        "guestAdded" : {
             "id": findUser.id,
             "utorid": findUser.utorid,
             "name": findUser.name,
