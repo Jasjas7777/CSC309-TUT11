@@ -304,7 +304,62 @@ router.get('/:transactionId', jwtAuth, requireRole('manager', 'superuser'), asyn
     if (!findTransaction){
         return res.status(404).json({'error': 'invalid transaction id'});
     }
+
     return res.status(200).json(findTransaction);
+})
+
+//transactions/:transactionId/suspicious
+router.patch('/:transactionId/suspicious', jwtAuth,requireRole('manager', 'superuser'), async (req, res) => {
+    const id = Number.parseInt(req.params['transactionId']);
+    if (isNaN(id)){
+        return res.status(400).json({'error': 'invalid transaction id'});
+    }
+    const {suspicious} = req.body;
+    if (suspicious !== undefined && suspicious !== null){
+        if (typeof suspicious !== 'boolean' && typeof suspicious !== 'string'){
+            return res.status(400).json({"error": "Invalid suspicious"});
+        }
+        if (suspicious === 'true'|| suspicious === true) {
+            where['suspicious'] = true;
+        } else if (suspicious === 'false' || suspicious === false) {
+            where['suspicious'] = false;
+        } else {
+            return res.status(400).json({"error": "Invalid suspicious"});
+        }
+    }
+
+    const omit = {
+        utoridUser: true,
+        rate: true,
+        processed: true,
+    }
+    const findTransaction = await prisma.transaction.findUnique({ where: { id: transactionId }, omit});
+    if (!findTransaction){
+        return res.status(404).json({"error": "Transaction not found"});
+    }
+
+    const findUser = await prisma.user.findUnique({ where: {utorid: findTransaction.utorid}});
+    if (!findUser){
+        return res.status(404).json({"error": "User not found"});
+    }
+    if (suspicious && !findTransaction.suspicious) {
+        const updateUser = await prisma.user.update({
+            where:{utorid: findTransaction.utorid},
+            data: {points: findUser.points - findTransaction.amount}
+        })
+    }
+    if (suspicious && findTransaction.suspicious) {
+        const updateUser = await prisma.user.update({
+            where:{utorid: findTransaction.utorid},
+            data: {points: findUser.points + findTransaction.amount}
+        })
+    }
+
+    const updateTransaction = await prisma.transaction.update({ where: { id: transactionId },
+        omit,
+        data: { suspicious: suspicious }
+    });
+    return res.status(200).json(updateTransaction);
 })
 
 module.exports = router;
