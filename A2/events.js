@@ -585,7 +585,7 @@ router.delete('/:eventId/guests/me', jwtAuth, async (req, res) => {
         return res.status(410).json({ "error": "event ended" });
     }
     const newNumGuests = findEvent.numGuests - 1;
-    const updateEvent = await prisma.event.delete({
+    const updateEvent = await prisma.event.update({
         where: {id: eventId},
         data: {
             guests: {
