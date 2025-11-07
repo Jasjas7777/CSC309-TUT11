@@ -329,7 +329,7 @@ router.patch('/:transactionId/suspicious', jwtAuth,requireRole('manager', 'super
         rate: true,
         processed: true,
     }
-    const findTransaction = await prisma.transaction.findUnique({ where: { id: id }, omit});
+    const findTransaction = await prisma.transaction.findUnique({ where: { id: id }, omit, include: {promotionIds: true}});
     if (!findTransaction){
         return res.status(404).json({"error": "Transaction not found"});
     }
@@ -344,7 +344,7 @@ router.patch('/:transactionId/suspicious', jwtAuth,requireRole('manager', 'super
             data: {points: findUser.points - findTransaction.amount}
         })
     }
-    if (suspicious && findTransaction.suspicious) {
+    if (!suspicious && findTransaction.suspicious) {
         const updateUser = await prisma.user.update({
             where:{utorid: findTransaction.utorid},
             data: {points: findUser.points + findTransaction.amount}
@@ -353,7 +353,8 @@ router.patch('/:transactionId/suspicious', jwtAuth,requireRole('manager', 'super
 
     const updateTransaction = await prisma.transaction.update({ where: { id: id },
         omit,
-        data: { suspicious: suspicious }
+        data: { suspicious: suspicious },
+        include : {promotionIds: true},
     });
     return res.status(200).json(updateTransaction);
 })
