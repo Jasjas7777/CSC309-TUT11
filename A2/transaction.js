@@ -94,7 +94,7 @@ router.post('/', jwtAuth, requireRole('cashier', 'manager', 'superuser'), async 
             data['amount'] = pointsAwarded;
 
             const createTransaction = await prisma.transaction.create({data});
-            if (promotionIds !== null){
+            if (promotionIds !== null && promotionIds !== undefined){
                 for (const promoId of promotionIds){
                     let updatePromotion = await prisma.promotion.update({
                         where: {id: promoId},
@@ -126,7 +126,7 @@ router.post('/', jwtAuth, requireRole('cashier', 'manager', 'superuser'), async 
                     "spent": findTransaction.spent,
                     "earned": 0,
                     "remark": findTransaction.remark,
-                    "promotionIds": findTransaction.promotionIds,
+                    "promotionIds": promotionIds,
                     "createdBy": findTransaction.createdBy
                 });
             }
@@ -137,7 +137,7 @@ router.post('/', jwtAuth, requireRole('cashier', 'manager', 'superuser'), async 
                 "spent": findTransaction.spent,
                 "earned": findTransaction.amount,
                 "remark": findTransaction.remark,
-                "promotionIds": findTransaction.promotionIds,
+                "promotionIds": promotionIds,
                 "createdBy": findTransaction.createdBy
             });
         }
