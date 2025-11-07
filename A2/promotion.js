@@ -176,7 +176,7 @@ router.get('/:promotionId', jwtAuth, async (req, res) => {
         }
         omit['startTime'] = true;
     }
-    const findPromotionAgain  = await prisma.promotion.findUnique({ where: { id: promotionId },
+    const findPromotionAgain  = await prisma.promotion.findUnique({ where: { id: id },
         omit
     });
 
