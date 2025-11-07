@@ -208,6 +208,9 @@ router.patch('/:promotionId', jwtAuth, requireRole('manager', 'superuser') ,asyn
         if (type !== 'automatic' && type !== 'one-time' || new Date() > findPromotion.startTime) {
             return res.status(400).json({"error": "Invalid type"});
         }
+        if (type === 'one-time'){
+            data['type'] = 'onetime';
+        }
         data['type'] = type;
     }
     if (startTime !== undefined && startTime !== null) {
