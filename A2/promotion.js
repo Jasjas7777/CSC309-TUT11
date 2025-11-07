@@ -155,4 +155,34 @@ router.get('/', jwtAuth, async (req, res) => {
     return res.status(200).json({"count": count, "results": findPromotions});
 })
 
+//promotions/:promotionId
+router.get('/:promotionId', jwtAuth, async (req, res) => {
+    const id = Number.parseInt(req.params['promotionId']);
+    if (isNaN(id)){
+        return res.status(404).json({'error': 'invalid promotion id'});
+    }
+    const user = req.user;
+
+    const findPromotion = await prisma.promotion.findUnique({
+        where: {id: id}
+    })
+    if (!findPromotion) {
+        return res.status(404).json({ "error": "promotion not found"});
+    }
+    const omit = {};
+    if (user.role === 'regular' || user.role === 'cashier') {
+        if (findPromotion.startTime > new Date() || findPromotion.endTime < new Date()) {
+            return res.status(404).json({ "error": "promotion is gone" });
+        }
+        omit['startTime'] = true;
+    }
+    const findPromotionAgain  = await prisma.promotion.findUnique({ where: { id: promotionId },
+        omit
+    });
+
+    return res.status(200).json(findPromotion)
+})
+
+
+
 module.exports = router;
