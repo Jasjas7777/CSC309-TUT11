@@ -358,7 +358,7 @@ router.delete('/:eventId/guests/me', jwtAuth, async (req, res) => {
     if (!findEvent){
         return res.status(404).json({ "error": "Event not found" });
     }
-    const isGuest = findEvent.guests.some(guest => guest['id'] === user.userId);
+    const isGuest = findEvent.guests.some(guest => guest['id'] === user.id);
     if (!isGuest){
         return res.status(404).json({ "error": "User is not a guest" });
     }
