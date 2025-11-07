@@ -316,7 +316,7 @@ router.post('/:eventId/organizers', jwtAuth, requireRole('manager', 'superuser')
         return res.status(404).json({ "error": "user not found" });
     }
 
-    const findEvent = await prisma.event.findUnique({where: {id: eventId}, include{guests: true}});
+    const findEvent = await prisma.event.findUnique({where: {id: eventId}, include: {guests: true}});
     if (!findEvent) {
         return res.status(404).json({ "error": "event not found" });
     }
