@@ -137,8 +137,63 @@ router.post('/', jwtAuth, requireRole('cashier', 'manager', 'superuser'), async 
                 "createdBy": findTransaction.createdBy
             });
         }
+        else if (type === 'adjustment'){
+            const {relatedld, amount} = req.body;
+            if (relatedld === undefined || relatedld === null || amount === undefined || amount === null){
+                return res.status(400).json({ "error": "Invalid payload"});
+            }
+            if (typeof amount !== 'number' || !Number.isInteger(amount)) {
+                return res.status(400).json({ "error": "invalid amount payload" });
+            }
+            const relatedTransaction = await prisma.transaction.findUnique({id: relatedld});
+            if (!relatedTransaction){
+                return res.status(404).json({ "error": "Transaction not found" });
+            }
+            data['type'] = type;
+            data['amount'] = amount;
+            data['relatedId'] = relatedld;
+            const updateUser = await prisma.user.update({
+                where: {utorid: utorid},
+                data: {points: findUser.points + amount}
+            })
+            const newTransaction = await prisma.transaction.create({data});
+            for (const promoId of promotionIds){
+                let updatePromotion = await prisma.promotion.update({
+                    where: {id: promoId},
+                    data: {users: {disconnect: {utorid: utorid}},
+                        transactions: {connect: {id: newTransaction.id}}
+                    }
+                });
 
+            }
+            const findTransaction = await prisma.transaction.findUnique({
+                where: {id: newTransaction.id},
+                select: {
+                    id: true,
+                    utorid: true,
+                    type: true,
+                    amount: true,
+                    remark: true,
+                    promotionIds: {select: {id: true}},
+                    createdBy: true,
+                }
+            });
+            return res.status(201).json({
+                'id': findTransaction.id,
+                'utorid': findTransaction.utorid,
+                'type': findTransaction.type,
+                "amount": findTransaction.amount,
+                "relatedId": relatedld,
+                "remark": findTransaction.remark,
+                "promotionIds": promotionIds,
+                "createdBy": findTransaction.createdBy
+            });
+        } else {
+            return res.status(400).json({ "error": "invalid type" });
+        }
     }
 })
+
+//transacitons/get Retrieve a list of transactions
 
 module.exports = router;
