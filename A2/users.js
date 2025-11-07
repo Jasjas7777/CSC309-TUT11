@@ -154,6 +154,10 @@ router.get('/', jwtAuth, requireRole('manager', 'superuser'), async (req, res) =
     return res.status(200).json({'count': count, "results": userList});
 })
 
+function isLeapYear(year) {
+    return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
+}
+
 //users/me Update the current logged-in use's information
 router.patch("/me", jwtAuth, upload.single('avatar'), async (req, res) => {
     const {name, email, birthday} = req.body;
@@ -203,8 +207,11 @@ router.patch("/me", jwtAuth, upload.single('avatar'), async (req, res) => {
         }
         const [year, month, day] = birthday.split("-").map(Number);
         const now = new Date();
-        if (isNaN(date.getTime()) || date.getUTCFullYear() !== year ||
-            date.getUTCMonth() + 1 !== month || date.getUTCDate() !== day) {
+        if (year > now.getFullYear() || month < 1 || month > 12 || day < 1 || day > 31) {
+            return res.status(400).json({"error": "Invalid birthday"})
+        }
+        const monthDays = [31, (isLeapYear(year) ? 29 : 28), 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+        if (day > monthDays[month - 1]) {
             return res.status(400).json({ "error": "Invalid birthday" });
         }
         data['birthday'] = new Date(birthday);
