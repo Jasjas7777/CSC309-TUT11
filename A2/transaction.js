@@ -13,7 +13,7 @@ app.use(express.json());
 //transactions Create a new purchase transaction.
 router.post('/', jwtAuth, requireRole('cashier', 'manager', 'superuser'), async (req, res) => {
     const {utorid, type, spent, promotionIds, remark} = req.body;
-    if (type === undefined || type === null || utorid === undefined || utorid === null || spent === undefined || spent === null){
+    if (type === undefined || type === null || utorid === undefined || utorid === null){
         return res.status(400).json({ "error": "Invalid payload" });
     }
 
@@ -28,9 +28,6 @@ router.post('/', jwtAuth, requireRole('cashier', 'manager', 'superuser'), async 
 
     if (typeof type !== 'string' || (type !== 'purchase' && type !== 'adjustment')){
         return res.status(400).json({ "error": "Invalid type payload" });
-    }
-    if (typeof spent !== 'number' || spent <= 0 ){
-        return res.status(400).json({ "error": "Invalid spent payload"});
     }
     if (remark !== undefined && remark !== null){
         if (typeof remark !== "string"){
@@ -72,10 +69,15 @@ router.post('/', jwtAuth, requireRole('cashier', 'manager', 'superuser'), async 
                 }
                 pointsAwarded = pointsAwarded + findPromotion.points + promotionPoint;
             }
-        }
-
+        }}
 
         if (type === 'purchase'){
+            if(spent === undefined || spent === null){
+                return res.status(400).json({ "error": "Invalid spent payload"});
+            }
+            if (typeof spent !== 'number' || spent <= 0 ){
+                return res.status(400).json({ "error": "Invalid spent payload"});
+            }
             pointsAwarded += Math.round(spent / 0.25);
             if (req.user.suspicious){
                 data['suspicious'] = true;
@@ -138,34 +140,39 @@ router.post('/', jwtAuth, requireRole('cashier', 'manager', 'superuser'), async 
             });
         }
         else if (type === 'adjustment'){
-            const {relatedld, amount} = req.body;
-            if (relatedld === undefined || relatedld === null || amount === undefined || amount === null){
+            const {relatedId, amount} = req.body;
+            if (relatedId === undefined || relatedId === null || amount === undefined || amount === null){
                 return res.status(400).json({ "error": "Invalid payload"});
             }
-            if (typeof amount !== 'number' || !Number.isInteger(amount)) {
+            if (typeof amount !== 'number') {
                 return res.status(400).json({ "error": "invalid amount payload" });
             }
-            const relatedTransaction = await prisma.transaction.findUnique({id: relatedld});
+            const relatedTransaction = await prisma.transaction.findUnique({where: {id: relatedId}});
             if (!relatedTransaction){
                 return res.status(404).json({ "error": "Transaction not found" });
             }
             data['type'] = type;
             data['amount'] = amount;
-            data['relatedId'] = relatedld;
+            data['relatedId'] = relatedId;
+            data['createdBy'] = req.user.utorid;
+            data["utoridUser"] = {connect: {utorid: utorid}};
             const updateUser = await prisma.user.update({
                 where: {utorid: utorid},
                 data: {points: findUser.points + amount}
             })
             const newTransaction = await prisma.transaction.create({data});
-            for (const promoId of promotionIds){
-                let updatePromotion = await prisma.promotion.update({
-                    where: {id: promoId},
-                    data: {users: {disconnect: {utorid: utorid}},
-                        transactions: {connect: {id: newTransaction.id}}
-                    }
-                });
+            if (promotionIds !== null){
+                for (const promoId of promotionIds){
+                    let updatePromotion = await prisma.promotion.update({
+                        where: {id: promoId},
+                        data: {users: {disconnect: {utorid: utorid}},
+                            transactions: {connect: {id: newTransaction.id}}
+                        }
+                    });
 
+                }
             }
+
             const findTransaction = await prisma.transaction.findUnique({
                 where: {id: newTransaction.id},
                 select: {
@@ -183,7 +190,7 @@ router.post('/', jwtAuth, requireRole('cashier', 'manager', 'superuser'), async 
                 'utorid': findTransaction.utorid,
                 'type': findTransaction.type,
                 "amount": findTransaction.amount,
-                "relatedId": relatedld,
+                "relatedId": relatedId,
                 "remark": findTransaction.remark,
                 "promotionIds": promotionIds,
                 "createdBy": findTransaction.createdBy
@@ -191,9 +198,11 @@ router.post('/', jwtAuth, requireRole('cashier', 'manager', 'superuser'), async 
         } else {
             return res.status(400).json({ "error": "invalid type" });
         }
-    }
 })
 
-//transacitons/get Retrieve a list of transactions
+//transactions/get Retrieve a list of transactions
+router.get('/', jwtAuth, requireRole('manager', 'superuser'), async (req, res) => {
+
+})
 
 module.exports = router;
