@@ -53,7 +53,7 @@ router.post('/', jwtAuth, requireRole('manager', 'superuser'), async (req, res) 
     }
 
     if( points !== undefined && points !== null){
-        if ( points <= 0 ) {
+        if ( points < 0 ) {
             return res.status(400).json({"error": "Invalid points payload"})
     }}
 
