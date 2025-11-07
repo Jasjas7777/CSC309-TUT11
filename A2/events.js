@@ -675,7 +675,7 @@ router.post('/:eventId/transactions', jwtAuth, async (req, res) => {
         });
         return res.status(201).json({
             "id": createTransaction.id,
-            "recipient": findUser.name,
+            "recipient": findUser.utorid,
             "awarded": amount,
             "type": 'event',
             "relatedId": createTransaction.relatedId,
@@ -712,7 +712,7 @@ router.post('/:eventId/transactions', jwtAuth, async (req, res) => {
             });
             response.push({
                 "id": createTransaction.id,
-                "recipient": guest.name,
+                "recipient": guest.utorid,
                 "awarded": amount,
                 "type": 'event',
                 "relatedId": createTransaction.relatedId,
