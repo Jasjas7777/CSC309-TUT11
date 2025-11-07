@@ -247,8 +247,8 @@ router.patch('/:promotionId', jwtAuth, requireRole('manager', 'superuser') ,asyn
         data['minSpending'] = minSpending;
         select['minSpending'] = true;
     }
-    if (rate !== undefined && rate !== null || new Date() > findPromotion.startTime){
-        if (typeof rate !== 'number' || rate <= 0){
+    if (rate !== undefined && rate !== null){
+        if (typeof rate !== 'number' || rate <= 0 || new Date() > findPromotion.startTime){
             return res.status(400).json({"error": "Invalid rate payload"})
         }
         data['rate'] = rate;
@@ -270,7 +270,7 @@ router.patch('/:promotionId', jwtAuth, requireRole('manager', 'superuser') ,asyn
 });
 
 //delete
-router.patch('/:promotionId', jwtAuth, requireRole('manager', 'superuser') ,async (req, res) => {
+router.delete('/:promotionId', jwtAuth, requireRole('manager', 'superuser') ,async (req, res) => {
     const id = Number.parseInt(req.params['promotionId']);
     if (isNaN(id)){
         return res.status(404).json({'error': 'invalid promotion id'});
