@@ -182,7 +182,6 @@ router.get('/:eventId', jwtAuth, async (req, res) => {
     }
     const findEvent = await prisma.event.findUnique({
         where: {id: id},
-        select: {published: true},
         omit: omit
     })
 
