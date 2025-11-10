@@ -15,7 +15,7 @@ const seed = [
 
 
 function App() {
-    const title = "My ToDOs";
+    const title = "My ToDos";
     const [todos, setTodos] = useState(seed);
 
     const addTodo = todo => {
