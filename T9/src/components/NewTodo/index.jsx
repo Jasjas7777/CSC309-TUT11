@@ -12,7 +12,8 @@ function NewTodo({addTodo}) {
     const handleSubmit = e => {
         e.preventDefault();
 
-        addTodo(value);
+        if (value.trim() === "") {return;}
+        addTodo(value.trim());
         setValue("");
     }
 
