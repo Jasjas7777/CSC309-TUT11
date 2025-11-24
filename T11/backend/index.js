@@ -14,6 +14,6 @@ app.use(cors({
 
 // TODO: complete me (CORS)
 app.use(express.json());
-
+app.use("/", routes);
 
 export default app;

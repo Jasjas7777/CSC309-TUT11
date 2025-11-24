@@ -26,6 +26,7 @@ export const AuthProvider = ({ children }) => {
         }
         async function getProfile() {
             const res = await fetch(`${BACKEND_URL}/user/me`, {
+                method: "GET",
                 headers: {Authorization: `Bearer ${token}`}
             });
 
