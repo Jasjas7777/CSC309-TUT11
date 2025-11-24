@@ -1,6 +1,0 @@
-I used Chatgpt for
-1. Understand API endpoint, compare the differences
-2. Understand how clearance middleware works
-3. Debug, find some minor mistakes that I overlook
-4. Improve code structure and seperation of concern
-https://chatgpt.com/share/690e1b20-3d64-800a-b686-6443e046ea2f
