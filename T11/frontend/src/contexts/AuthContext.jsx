@@ -2,9 +2,6 @@ import React, { createContext, useContext, useEffect, useState} from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const AuthContext = createContext(null);
-
-// TODO: get the BACKEND_URL.
-
 /*
  * This provider should export a `user` context state that is 
  * set (to non-null) when:
@@ -16,11 +13,32 @@ const AuthContext = createContext(null);
  */
 export const AuthProvider = ({ children }) => {
     const navigate = useNavigate();
-    // const user = null; // TODO: Modify me.
 
-    useEffect({
+    const [user, setUser] = useState(null);
+    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
+
+
+    useEffect(() => {
         // TODO: complete me, by retriving token from localStorage and make an api call to GET /user/me.
-    }, [])
+        const token = localStorage.getItem("token");
+        if (!token) {
+            setUser(null);
+        }
+        async function getProfile() {
+            const res = await fetch(`${BACKEND_URL}/user/me`, {
+                headers: {Authorization: `Bearer ${token}`}
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                setUser(data.user);
+            } else {
+                setUser(null);
+            }
+        }
+
+        getProfile();
+    }, [BACKEND_URL]);
 
     /*
      * Logout the currently authenticated user.
@@ -28,8 +46,8 @@ export const AuthProvider = ({ children }) => {
      * @remarks This function will always navigate to "/".
      */
     const logout = () => {
-        // TODO: complete me
-
+        localStorage.removeItem("token");
+        setUser(null);
         navigate("/");
     };
 
@@ -42,8 +60,26 @@ export const AuthProvider = ({ children }) => {
      * @returns {string} - Upon failure, Returns an error message.
      */
     const login = async (username, password) => {
-        // TODO: complete me
-        return "TODO: complete me";
+        const res = await fetch(`${BACKEND_URL}/login`, {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({username, password})
+        });
+        if (!res.ok) {
+            const err = await res.json();
+            return err.message;
+        }
+
+        const data = await res.json();
+        localStorage.setItem("token", data.token);
+
+        const profile =  await fetch(`${BACKEND_URL}/user/me`, {
+            headers: {Authorization: `Bearer ${data.token}`}
+        });
+        const profileData = await profile.json();
+        setUser(profileData.user);
+
+        navigate("/profile");
     };
 
     /**
@@ -54,8 +90,19 @@ export const AuthProvider = ({ children }) => {
      * @returns {string} - Upon failure, returns an error message.
      */
     const register = async (userData) => {
-        // TODO: complete me
-        return "TODO: complete me";
+        const {username, firstname, lastname, password} = userData;
+        const res = await fetch(`${BACKEND_URL}/register`, {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({username, password, firstname, lastname}),
+        })
+
+        if (!res.ok) {
+            const err = await res.json();
+            return err.message;
+        }
+
+        navigate("/success");
     };
 
     return (
