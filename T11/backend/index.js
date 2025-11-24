@@ -15,4 +15,6 @@ app.use(cors({
 // TODO: complete me (CORS)
 app.use(express.json());
 
+app.listen(process.env.PORT);
+
 export default app;
