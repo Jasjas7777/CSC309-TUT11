@@ -4,6 +4,17 @@ import { forwardRef, useState } from "react";
 const AddCity = forwardRef(({ setError }, ref) => {
     const [cityName, setCityName] = useState("");
 
+    const addCity = (name, latitude, longitude) => {
+        const newCity = {
+            id: Date.now(),
+            name,
+            latitude: Number(latitude),
+            longitude: Number(longitude)
+        };
+
+        setCities([...cities, newCity]);
+    };
+
     const handle_submit = (e) => {
         e.preventDefault(); 
 

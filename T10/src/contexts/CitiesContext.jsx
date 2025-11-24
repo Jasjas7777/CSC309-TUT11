@@ -3,17 +3,20 @@ import { createContext, useContext, useState } from "react";
 const CitiesContext = createContext();
 
 export const CitiesProvider = ({ children }) => {
-    const [cities, _setCities] = useState([
+    const [cities, setCities] = useState([
         { id: 1, name: "Toronto", latitude: 43.70011, longitude: -79.4163 }
     ]);
 
-    // TODO: complete me
-    // HINT: it may be good to provide addCity and removeCity functions
+
+    const removeCity = (cityId) => {
+        setCities(cities.filter((city) => city.id !== cityId));
+    };
 
     return (
-        <CitiesContext.Provider value={{ cities, /* ADD MORE GLOBALS */ }}>
+        <CitiesContext.Provider value={{ cities, addCity, removeCity }}>
             {children}
         </CitiesContext.Provider>
+
     );
 };
 
